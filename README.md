@@ -1,5 +1,4 @@
-````md
-# ARGOS V1 — Sistema Integral de Reconocimiento y Seguridad en Cuevas
+# ARGOS — Sistema Integral de Reconocimiento y Seguridad en Cuevas
 
 **ARGOS V1** es un prototipo funcional de **seguridad operativa** para exploración en entornos tipo cueva. Convierte una exploración incierta en un proceso **medible, trazable y comunicable** mediante un protocolo claro:
 
