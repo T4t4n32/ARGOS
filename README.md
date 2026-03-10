@@ -240,7 +240,7 @@ Contribuciones se aceptan con enfoque profesional: cambios pequeños, evidencia 
 
 ## Licencia
 
-Ver `LICENSE.md`.
+Ver [[LICENSE.md]]
 
 ---
 
