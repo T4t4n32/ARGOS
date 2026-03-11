@@ -1,2 +1,0 @@
-﻿# ARGOS - Sistema-integral de reconocimiento y seguridad en cuevas
-
