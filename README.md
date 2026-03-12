@@ -1,7 +1,7 @@
 # ARGOS — Sistema [descripción breve y precisa del proyecto]
 
 <p align="center">
-  <img src="assets/images/logo_argos.png" alt="Logo de ARGOS" width="220">
+  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="220">
 </p>
 
 <p align="center">
