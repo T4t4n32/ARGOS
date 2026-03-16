@@ -1,4 +1,4 @@
-# ARGOS — Sistema [descripción breve y precisa del proyecto]
+# ARGOS — Sistema de Reconocimiento y Seguridad en Cuevas
 
 <p align="center">
   <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="220">
