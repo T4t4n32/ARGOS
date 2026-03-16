@@ -3,8 +3,10 @@
 Bienvenido al repositorio **ARGOS**, un proyecto de ingeniería enfocado en el **monitoreo ambiental** y la **seguridad** en operaciones de exploración de cuevas.  El sistema integra hardware, firmware embebido y software de alto nivel para obtener datos del entorno subterráneo (calidad del aire, temperatura, distancia) y enviarlos de forma inalámbrica mediante **LoRa** hacia una estación base donde se visualizan y analizan los resultados.  ARGOS surge como iniciativa del grupo **CALIBOTS**, orientada a prototipos educativos y de investigación.
 
 <div align="center">
-  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="200" />
+  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="600" />
 </div>
+
+<div align="center"><img src="assets/brand/LOGO_ARGOS.png" alt="Logo de ARGOS" width="600"></div>
 
 - **Estado**: en desarrollo
 - **Plataforma principal**: Raspberry Pi 5
