@@ -1,402 +1,221 @@
-# ARGOS — Sistema de Reconocimiento y Seguridad en Cuevas
+# ARGOS – Sistema integral de reconocimiento y seguridad en cuevas
 
-<p align="center">
-  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="220">
-</p>
+Bienvenido al repositorio **ARGOS**, un proyecto de ingeniería enfocado en el **monitoreo ambiental** y la **seguridad** en operaciones de exploración de cuevas.  El sistema integra hardware, firmware embebido y software de alto nivel para obtener datos del entorno subterráneo (calidad del aire, temperatura, distancia) y enviarlos de forma inalámbrica mediante **LoRa** hacia una estación base donde se visualizan y analizan los resultados.  ARGOS surge como iniciativa del grupo **CALIBOTS**, orientada a prototipos educativos y de investigación.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/status-in%20development-blue" alt="Project Status">
-  <img src="https://img.shields.io/badge/platform-[platform]-informational" alt="Platform">
-  <img src="https://img.shields.io/badge/language-[main_language]-success" alt="Main Language">
-  <img src="https://img.shields.io/badge/license-[license]-lightgrey" alt="License">
-</p>
+<div align="center">
+  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="200" />
+</div>
 
-<p align="center">
-  Repositorio técnico oficial de <strong>ARGOS</strong>.
-</p>
-
----
-
-## Descripción general
-
-**ARGOS** es un sistema orientado a [monitoreo / automatización / navegación / análisis / control] diseñado para [explica aquí el propósito real del proyecto en una sola frase clara].
-
-Este repositorio presenta el proyecto desde un enfoque **técnico e ingenieril**, documentando su arquitectura, componentes, lógica de funcionamiento, estructura del software y criterios de implementación.
-
-Aunque el proyecto también forma parte del trabajo y la visión del grupo **CALIBOTS**, este repositorio está enfocado en mostrar **cómo está construido ARGOS**, cómo puede ejecutarse y cómo evoluciona técnicamente.
-
-## Contexto del proyecto
-
-ARGOS nace con la intención de responder a una necesidad concreta: **[expón aquí el problema principal que existe en el entorno real]**.
-
-Su desarrollo busca aportar una solución basada en ingeniería aplicada, integrando distintas capas del sistema para lograr una propuesta funcional, escalable y técnicamente justificable.
-
-Para conocer el contexto general del grupo, su enfoque y la presentación más institucional del proyecto, visita:
-
-- **Sitio del grupo CALIBOTS:** [pegar aquí enlace oficial]
-- **Presentación general de ARGOS en el sitio del grupo:** [pegar aquí enlace específico si existe]
-
----
+- **Estado**: en desarrollo
+- **Plataforma principal**: Raspberry Pi 5
+- **Lenguaje principal**: Python (software) + C/C++ (firmware)
+- **Licencia**: MIT
 
 ## Tabla de contenidos
 
-- [Descripción general](#descripción-general)
-- [Contexto del proyecto](#contexto-del-proyecto)
-- [Problema que resuelve](#problema-que-resuelve)
-- [Objetivos](#objetivos)
-- [¿Qué hace diferente a ARGOS?](#qué-hace-diferente-a-argos)
-- [Ingeniería aplicada](#ingeniería-aplicada)
-  - [Hardware](#hardware)
-  - [Firmware](#firmware)
-  - [Software](#software)
-- [Arquitectura del sistema](#arquitectura-del-sistema)
-- [Funciones principales](#funciones-principales)
-- [Estructura del repositorio](#estructura-del-repositorio)
-- [Instalación](#instalación)
-- [Uso](#uso)
-- [Pruebas](#pruebas)
-- [Evidencia visual](#evidencia-visual)
-- [Hoja de ruta](#hoja-de-ruta)
-- [Contribución](#contribución)
-- [Créditos](#créditos)
-- [Licencia](#licencia)
+1. [Contexto y problema](#contexto-y-problema)
+2. [Objetivos](#objetivos)
+3. [Arquitectura](#arquitectura)
+4. [Estructura del repositorio](#estructura-del-repositorio)
+5. [Instalación](#instalación)
+6. [Ejecución](#ejecución)
+7. [Contribución](#contribución)
+8. [Créditos](#créditos)
+9. [Licencia](#licencia)
 
 ---
 
-## Problema que resuelve
+## Contexto y problema
 
-En muchos contextos, [describe aquí la situación actual o limitación del entorno]. Esto genera problemas como:
-
-- [Problema 1]
-- [Problema 2]
-- [Problema 3]
-
-ARGOS busca resolver esta situación mediante un sistema que combine criterios de diseño técnico, integración entre componentes y una propuesta funcional centrada en **[objetivo principal]**.
+La exploración de cuevas presenta riesgos significativos debido a la **falta de iluminación**, la **variación en la calidad del aire** y la **posible presencia de obstáculos o espacios estrechos**.  Los expedicionarios requieren herramientas confiables para evaluar el entorno y tomar decisiones de forma segura.  ARGOS busca proporcionar un **sistema autónomo** que recopile datos ambientales, detecte riesgos y permita transmitir información en tiempo real hacia la superficie.  Así se mejoran los protocolos de seguridad y se reducen los accidentes en actividades de espeleología.
 
 ## Objetivos
 
 ### Objetivo general
-Desarrollar un sistema llamado **ARGOS** capaz de [objetivo general del proyecto].
+
+Diseñar, implementar y validar un sistema denominado **ARGOS** capaz de **monitorear parámetros ambientales en cuevas**, procesar la información en una unidad central (Raspberry Pi) y transmitir datos mediante comunicaciones de largo alcance para su visualización y análisis.
 
 ### Objetivos específicos
-- Diseñar la arquitectura general del sistema.
-- Integrar componentes de hardware, firmware y software.
-- Permitir [función clave 1].
-- Mejorar [función clave 2].
-- Validar el funcionamiento del sistema en [entorno o escenario de prueba].
 
----
+- Desarrollar una arquitectura modular que integre hardware (sensores, actuadores), firmware y software.
+- Implementar drivers para sensores de calidad de aire (MQ‑135), temperatura/humedad (BME280) y distancia (VL53L0X).
+- Desplegar un esquema de comunicaciones LoRa para telemetría y un módulo de visión basado en cámara USB y algoritmos de detección con OpenCV/YOLO.
+- Diseñar una interfaz de consola para la visualización de datos y la configuración del sistema.
+- Validar el prototipo en un entorno controlado simulando condiciones de una cueva y medir su desempeño.
 
-## ¿Qué hace diferente a ARGOS?
+## Arquitectura
 
-ARGOS se diferencia por:
+La arquitectura de ARGOS se basa en tres capas claramente diferenciadas:
 
-- Su enfoque técnico integral, no solo conceptual.
-- La separación clara entre hardware, firmware y software.
-- Su diseño orientado a [eficiencia / robustez / portabilidad / monitoreo / automatización].
-- Su posibilidad de evolucionar hacia versiones más complejas sin perder una base estructurada.
-- La documentación del desarrollo desde una perspectiva real de ingeniería.
+```
 
----
+[ Usuario / Interfaz ]  
+| ← consola de monitoreo  
+v  
+[ Software de aplicación ]  
+| ← CLI `argos` y módulos Python  
+v  
+[ Firmware / Control embebido ]  
+| ← microcontroladores con Arduino/PlatformIO  
+v  
+[ Hardware ] ← sensores (MQ‑135, BME280, VL53L0X), cámara USB, módulos LoRa, motores
 
-## Ingeniería aplicada
+```
 
-Esta sección resume el proyecto desde tres capas fundamentales del sistema.
-
-### Hardware
-
-La capa de hardware corresponde a los componentes físicos que hacen posible el funcionamiento de ARGOS.
-
-**Incluye:**
-- [Microcontrolador / SBC / computadora principal]
-- [Sensores]
-- [Actuadores]
-- [Módulos de comunicación]
-- [Sistema de alimentación]
-- [Estructura física o chasis]
-
-**Responsabilidades del hardware:**
-- Captura de datos
-- Interacción con el entorno
-- Soporte estructural
-- Ejecución física de acciones
-- Comunicación entre módulos
-
-### Firmware
-
-La capa de firmware se encarga de controlar directamente los dispositivos electrónicos de bajo nivel y establecer la lógica embebida del sistema.
-
-**Incluye:**
-- Lectura de sensores
-- Control de actuadores
-- Comunicación serial, I2C, SPI, UART, LoRa, Wi-Fi, BLE o protocolo usado
-- Validación básica de datos
-- Gestión de eventos críticos
-- Envío de información a capas superiores
-
-**Responsabilidades del firmware:**
-- Traducir señales físicas en datos útiles
-- Responder en tiempo real a eventos del sistema
-- Coordinar periféricos
-- Mantener una operación confiable a nivel embebido
-
-### Software
-
-La capa de software organiza, procesa, visualiza o utiliza la información proveniente del sistema.
-
-**Incluye:**
-- Backend
-- Frontend o interfaz de usuario
-- Bases de datos
-- APIs
-- Paneles de control
-- Herramientas de monitoreo o análisis
-- Scripts de soporte y automatización
-
-**Responsabilidades del software:**
-- Procesamiento de datos
-- Visualización de información
-- Registro histórico
-- Gestión del sistema
-- Escalabilidad de la solución
-- Interacción con el usuario final
-
----
-
-## Arquitectura del sistema
-
-La arquitectura de ARGOS está organizada en capas para facilitar su comprensión, mantenimiento y crecimiento.
-
-```text
-[ Usuario / Interfaz ]
-         |
-         v
-[ Software de aplicación / Dashboard / Backend ]
-         |
-         v
-[ Comunicación / API / Middleware ]
-         |
-         v
-[ Firmware / Control embebido ]
-         |
-         v
-[ Hardware / Sensores / Actuadores / Módulos ]
-````
-
-### Flujo general de funcionamiento
-
-1. El hardware captura información del entorno o ejecuta acciones.
-2. El firmware procesa señales y coordina dispositivos.
-3. El software recibe, organiza, almacena o visualiza la información.
-4. El usuario interpreta los datos o interactúa con el sistema.
-5. ARGOS responde según la lógica definida para su operación.
-
----
-
-## Funciones principales
-
-* [Función principal 1]
-* [Función principal 2]
-* [Función principal 3]
-* [Función principal 4]
-* [Función principal 5]
-
----
+1. **Hardware** – Incluye la Raspberry Pi 5 como unidad central, sensores de gas, temperatura y distancia, cámara USB, iluminación, módulos LoRa Heltec para comunicación de largo alcance y motores controlados mediante puentes H.  La lista detallada de materiales se encuentra en `hardware/bom.md`.
+2. **Firmware** – Programas embebidos para las placas de sensores/actuadores que gestionan la lectura de datos y la comunicación LoRa.  Cada módulo tiene un directorio propio bajo `firmware/` y un README con instrucciones de compilación.
+3. **Software** – Aplicación escrita en Python que corre en la Raspberry Pi.  Esta capa inicializa la configuración (`config/argos.yaml`), se comunica con los microcontroladores, procesa la telemetría, gestiona el registro de datos y muestra la información en la consola.  Se distribuye como paquete `argos_app` instalable mediante `pip`.
 
 ## Estructura del repositorio
 
-```text
-ARGOS/
-├── assets/
-│   └── images/
-├── docs/
-├── hardware/
-├── firmware/
-├── software/
-│   ├── backend/
-│   ├── frontend/
-│   └── scripts/
-├── tests/
-├── README.md
-├── LICENSE
-├── CONTRIBUTING.md
-└── .gitignore
 ```
 
+ARGOS/  
+├── assets/ # Logos, diagramas y otros recursos gráficos  
+├── config/  
+│ ├── argos.example.yaml # Plantilla de configuración del sistema  
+│ └── argos.yaml # Configuración real (gitignored)  
+├── deploy/  
+│ └── raspi/ # Archivos de despliegue (systemd service)  
+├── docs/  
+│ ├── architecture/ # Diagramas y descripciones técnicas  
+│ ├── identity/ # Manual de identidad visual  
+│ ├── references/ # Bibliografía APA/IEEE  
+│ ├── safety/ # Protocolos de seguridad y umbrales  
+│ ├── templates/ # Plantillas para cronogramas, BOM, pruebas  
+│ ├── thesis/ # Documentación de tesis por capítulos  
+│ └── readme.md # Guía de la documentación  
+├── firmware/  
+│ ├── button_tx/ # Firmware para el transmisor de pulsador  
+│ └── ... # Otros módulos embebidos  
+├── hardware/  
+│ └── bom.md # Lista de materiales y enlaces  
+├── software/  
+│ ├── pyproject.toml # Configuración de empaquetado de `argos_app`  
+│ ├── src/argos_app/  
+│ │ ├── **init**.py  
+│ │ ├── **main**.py # Punto de entrada para `python -m argos_app`  
+│ │ ├── cli.py # Definición del comando `argos`  
+│ │ ├── runtime.py # Carga de configuración y arranque  
+│ │ ├── comms/ # Módulos de comunicación (LoRa, Wi‑Fi)  
+│ │ ├── sensors/ # Drivers de BME280, VL53L0X, MQ‑135  
+│ │ ├── decision/ # Motor de riesgo y generación de alertas  
+│ │ ├── vision/ # Captura con cámara y detección con OpenCV/YOLO  
+│ │ └── utils/ # Funciones de apoyo  
+│ └── tests/ # Pruebas unitarias  
+├── tests/ # Pruebas adicionales del repositorio  
+├── .editorconfig  
+├── .gitignore  
+├── CHANGELOG.md  
+├── CODE_OF_CONDUCT.md  
+├── CONTRIBUTING.md  
+└── README.md
+```
 ### Descripción de carpetas
 
-* `assets/images/`: logotipos, diagramas, capturas y material visual
-* `docs/`: documentación técnica adicional
-* `hardware/`: esquemas, planos, conexiones y decisiones físicas
-* `firmware/`: código embebido y pruebas asociadas
-* `software/`: backend, frontend, scripts y utilidades del sistema
-* `tests/`: pruebas del proyecto
-* `README.md`: documento principal del repositorio
-
----
-
+- **assets/** – Contiene imágenes de diagramas de arquitectura, logotipos y fotos del prototipo.
+- **config/** – Plantillas y configuración real del sistema.  No se debe comprometer la configuración real (`argos.yaml`) para proteger información sensible.
+- **deploy/** – Scripts y plantillas para desplegar la aplicación como servicio en Raspberry Pi.  El archivo `argos.service.example` muestra cómo configurar systemd.
+- **docs/** – Documentación técnica y académica; incluye planos de arquitectura, capítulos de tesis y protocolos de seguridad.
+- **firmware/** – Programas embebidos para microcontroladores; cada subcarpeta corresponde a un módulo físico con su propio README.
+- **hardware/** – Planos, lista de materiales (`bom.md`) y recomendaciones de montaje.
+- **software/** – Código Python que conforma la aplicación ARGOS; empaquetado como módulo instalable.
+- **tests/** – Pruebas unitarias que validan el funcionamiento de las diferentes capas.
 ## Instalación
 
-Sigue estos pasos para preparar el entorno de desarrollo de ARGOS.
+### Requisitos
 
-### 1. Clonar el repositorio
+- **Hardware:** Raspberry Pi 5 (o compatible) con Raspberry Pi OS Bookworm, fuentes de alimentación adecuadas, sensores y módulos listados en `hardware/bom.md`.
+- **Software:** Python ≥ 3.10, `git`, `pip` y, opcionalmente, PlatformIO o Arduino IDE para el firmware.
+### Pasos
 
-```bash
-git clone [URL_DEL_REPOSITORIO]
-cd ARGOS
-```
+1. **Clonar el repositorio:**
 
-### 2. Configurar dependencias
+   ```bash
+   git clone https://github.com/T4t4n32/ARGOS.git
+   cd ARGOS
+	```
+2. **Preparar el entorno virtual:**
+    
+    ```bash
+    cd software
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+    
+3. **Instalar el paquete y dependencias:**
+    
+    ```bash
+    pip install --upgrade pip
+    pip install .
+    ```
+    
+    Al instalar la carpeta `software` como paquete se genera automáticamente el comando `argos`.
+    
+4. **Copiar la configuración de ejemplo:**
+    
+    ```bash
+    cp config/argos.example.yaml config/argos.yaml
+    # editar config/argos.yaml según pines, sensores y umbrales
+    ```
+    
+5. **(Opcional) Compilar y cargar firmware:** Consulta cada subcarpeta de `firmware/` para compilar con PlatformIO o Arduino IDE.
+    
 
-Según la estructura actual del proyecto, instala las dependencias necesarias para cada módulo.
+## Ejecución
 
-#### Ejemplo para Python
+Una vez instalado el paquete, puedes iniciar ARGOS en modo simulado o en modo hardware.
 
-```bash
-pip install -r requirements.txt
-```
+### Modo simulado
 
-#### Ejemplo para Node.js
-
-```bash
-npm install
-```
-
-#### Ejemplo para firmware
-
-```bash
-[agrega aquí el procedimiento real según el entorno: PlatformIO, Arduino IDE, ESP-IDF, etc.]
-```
-
-### 3. Configurar variables o archivos necesarios
-
-```bash
-cp .env.example .env
-```
-
-Luego edita el archivo `.env` según tu entorno local.
-
-### 4. Ejecutar el sistema
-
-```bash
-[comando principal de arranque]
-```
-
----
-
-## Uso
-
-Una vez instalado el proyecto, ARGOS puede utilizarse de la siguiente manera:
-
-1. Inicializar el hardware.
-2. Cargar o ejecutar el firmware correspondiente.
-3. Levantar el backend o el software principal.
-4. Acceder a la interfaz o consola de monitoreo.
-5. Verificar que el flujo de datos o control funcione correctamente.
-
-### Ejemplo de ejecución
+Para probar la aplicación sin hardware conectado (envía valores de ejemplo y evita inicializar sensores):
 
 ```bash
-[comando de ejemplo]
+argos --mode simulated --config config/argos.yaml
 ```
 
-### Ejemplo de salida esperada
+### Modo hardware
 
-```text
-[agrega aquí una salida real o aproximada del sistema]
-```
-
----
-
-## Pruebas
-
-Para validar el funcionamiento del proyecto, ejecuta:
+Para ejecutar con la Raspberry Pi conectada a los sensores y a los módulos LoRa:
 
 ```bash
-[comando de pruebas]
+argos --mode hardware --config config/argos.yaml
 ```
 
-### Tipos de prueba sugeridos
+El sistema mostrará información en consola sobre la versión del proyecto, cargará los módulos de sensores, comunicaciones y visión definidos en `argos_app/runtime.py` y comenzará a emitir datos periódicamente.
 
-* Pruebas unitarias
-* Pruebas de integración
-* Pruebas de comunicación
-* Pruebas de hardware
-* Pruebas de validación funcional
+### Servicio en Raspberry Pi
 
----
+Para que la aplicación se ejecute automáticamente al iniciar la Raspberry Pi, copia el archivo de ejemplo a `/etc/systemd/system/` y habilítalo:
 
-## Evidencia visual
+```bash
+sudo cp deploy/raspi/argos.service.example /etc/systemd/system/argos.service
+sudo systemctl daemon-reload
+sudo systemctl enable argos
+sudo systemctl start argos
+```
 
-### Diagrama general
-
-![Diagrama del sistema](assets/images/diagram_argos.png)
-
-### Prototipo o montaje
-
-![Montaje del proyecto](assets/images/prototype_argos.png)
-
-### Interfaz o panel de control
-
-![Interfaz del sistema](assets/images/dashboard_argos.png)
-
----
-
-## Hoja de ruta
-
-### Fase actual
-
-* [Estado actual del proyecto]
-
-### Próximos pasos
-
-* [ ] Completar integración entre módulos
-* [ ] Mejorar documentación técnica
-* [ ] Validar funcionamiento en escenario real
-* [ ] Optimizar arquitectura del sistema
-* [ ] Preparar nueva fase de pruebas
-
----
+Asegúrate de ajustar las rutas del servicio a la ubicación real de tu instalación (por ejemplo, `/opt/argos`).
 
 ## Contribución
 
-Las contribuciones, mejoras técnicas, sugerencias y observaciones son bienvenidas.
+Las aportaciones son bienvenidas. Por favor, sigue estos pasos:
 
-Si deseas contribuir:
+1. **Fork** del repositorio en GitHub.
+    
+2. Crea una rama para tu mejora o corrección.
+    
+3. Asegúrate de que tu código siga la estructura del proyecto y añade pruebas unitarias cuando sea posible.
+    
+4. Envía un **pull request** describiendo con claridad las modificaciones realizadas.
+    
 
-1. Haz un fork del repositorio.
-2. Crea una rama para tu cambio.
-3. Realiza tus modificaciones con buena documentación.
-4. Envía un pull request con una explicación clara.
-
-Para más detalles, consulta el archivo [`CONTRIBUTING.md`](CONTRIBUTING.md).
-
----
+Consulta `CONTRIBUTING.md` y `CODE_OF_CONDUCT.md` para detalles adicionales.
 
 ## Créditos
 
-**Desarrollo principal**
-
-* [Tu nombre]
-
-**Grupo / iniciativa relacionada**
-
-* CALIBOTS
-
-**Apoyos, referencias o terceros**
-
-* [Persona, institución o recurso si aplica]
-
----
+Este proyecto es desarrollado por integrantes del grupo **CALIBOTS** como parte de un esfuerzo educativo y de investigación. Agradecemos a todas las personas que colaboran con sugerencias, pruebas y retroalimentación.
 
 ## Licencia
 
-Este proyecto se distribuye bajo la licencia **[nombre de la licencia]**.
-
-Consulta el archivo [`LICENSE`](LICENSE) para más información.
-
-Dos decisiones de estructura que dejé fijas porque sí te convienen: el enlace a CALIBOTS arriba, dentro de “Contexto del proyecto”, para que dé respaldo sin robar protagonismo; y la sección “Ingeniería aplicada” como núcleo técnico del README, dividida en hardware, firmware y software, justo como querías. GitHub además recomienda acompañar el README con licencia y guía de contribución, así que también lo dejé amarrado a `LICENSE` y `CONTRIBUTING.md`. :contentReference[oaicite:2]{index=2}
-
-En el badge de licencia, ten en cuenta que si todavía no has definido una, conviene hacerlo pronto: Choose a License recuerda que sin licencia explícita otros no tienen permisos abiertos por defecto para usar, modificar o redistribuir tu código. :contentReference[oaicite:3]{index=3}
-
-En el siguiente paso te lo puedo convertir en una **versión ya escrita como si ARGOS fuera un proyecto real**, con tono técnico-profesional y sin marcadores `[ ]`, para que quede casi listo para subir.
+ARGOS se distribuye bajo la licencia **MIT**. Consulta el archivo [`LICENSE`](https://chatgpt.com/g/g-p-69a0751234a48191ba25738166318ee9-m-a-n-g-o/c/LICENSE.md) para más detalles.
