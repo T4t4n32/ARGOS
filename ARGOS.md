@@ -345,8 +345,14 @@ Eso hace que se vea **mucho más profesional**.
 
 Para dejar un framework robusto que funcione “de caja” cuando tengas acceso a la Raspberry, conviene invertir algo de tiempo en pulir aspectos adicionales. Además de la reestructuración del repositorio y del **hub** que te propuse, estas son algunas optimizaciones útiles:
 
+ARGOS VERSION REGIONAL:
+
 1. **Implantar drivers reales y capas de abstracción**  
-    Aunque ahora trabajes en modo simulado, crea ya las clases de sensores (BME280, MQ‑135, VL53L0X), comunicaciones (LoRa), visión (cámara + YOLO) y un motor de decisión real. Utiliza una clase base común para cada tipo que defina la interfaz (`read()`, `send_readings()`, `capture()`, etc.) y permite inyectar implementaciones concretas. Así el hub no tendrá que cambiar cuando migres de simulado a hardware.
+    Aunque ahora trabajes en modo simulado, crea ya las clases de sensores (PT100 + MAX91865, MQ‑135), comunicaciones (LoRa), visión (cámara + YOLO) y un motor de decisión real. Utiliza una clase base común para cada tipo que defina la interfaz (`read()`, `send_readings()`, `capture()`, etc.) y permite inyectar implementaciones concretas. Así el hub no tendrá que cambiar cuando migres de simulado a hardware.
+
+
+
+
     
 2. **Sistema de logging configurable**  
     Sustituye las impresiones por el módulo `logging` de Python para poder registrar en fichero (por ejemplo, en `data/logs/argos.log`) con diferentes niveles (info, warning, error). Añade un parámetro en el YAML para controlar el nivel de log y la ruta del archivo.

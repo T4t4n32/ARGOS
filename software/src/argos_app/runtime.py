@@ -230,7 +230,7 @@ async def decision_loop(decision: StubDecision, queue: asyncio.Queue) -> None:
             for name, reading in data.items():
                 table.add_row(name, str(reading.get("value")))
             console.print(table)
-            console.print(f"[decision] Risk state: {level}\\n")
+            console.print(f"[decision] Risk state: {level}\n")
         queue.task_done()
 
 
@@ -247,7 +247,7 @@ async def main_hub(cfg: dict, mode: str) -> None:
     """
     console.rule(f"ARGOS Hub — mode={mode}")
     project = cfg.get("project", {})
-    console.print(f"Project: {project.get('name', 'ARGOS')} v{project.get('version', '0.0')}\\n")
+    console.print(f"Project: {project.get('name', 'ARGOS')} v{project.get('version', '0.0')}\n")
 
     # Instantiate sensors based on mode.  Replace these with real drivers.
     sensors: Dict[str, BaseSensor] = {}
@@ -258,15 +258,24 @@ async def main_hub(cfg: dict, mode: str) -> None:
             "distance": SimulatedSensor("distance", min_val=0.2, max_val=5.0),
         }
     else:
-        # TODO: import and initialise real sensor drivers (e.g. BME280, MQ135, VL53L0X)
-        # from .sensors.bme280 import BME280
-        # sensors = {"temperature": BME280(...), ...}
-        console.print("Hardware mode is not yet implemented; using simulated sensors")
-        sensors = {
-            "temperature": SimulatedSensor("temperature", min_val=20.0, max_val=35.0),
-            "gas": SimulatedSensor("gas", min_val=200.0, max_val=900.0),
-            "distance": SimulatedSensor("distance", min_val=0.2, max_val=5.0),
-        }
+        # Attempt to import real sensor drivers.  Fallback to simulated sensors
+        # if the drivers or required hardware libraries are not available.
+        sensors = {}
+        try:
+            from .sensors.pt100 import PT100Sensor  # type: ignore
+            # Instantiate a PT100 sensor connected via MAX31865.  The CS pin
+            # number and other parameters can be overridden via YAML config.
+            temp_cfg = cfg.get("sensors", {}).get("temperature", {})
+            cs_pin = temp_cfg.get("cs_pin", 17)
+            rref = temp_cfg.get("rref", 430.0)
+            wires = temp_cfg.get("wires", 3)
+            sensors["temperature"] = PT100Sensor(cs_pin=cs_pin, rref=rref, wires=wires)
+        except Exception as e:
+            console.print(f"[yellow]Warning: PT100Sensor could not be initialised ({e}); using simulated temperature sensor")
+            sensors["temperature"] = SimulatedSensor("temperature", min_val=20.0, max_val=35.0)
+        # TODO: import MQ135 driver when available
+        sensors["gas"] = SimulatedSensor("gas", min_val=200.0, max_val=900.0)
+        sensors["distance"] = SimulatedSensor("distance", min_val=0.2, max_val=5.0)
 
     # Instantiate communications subsystem
     comms = StubComms()
@@ -298,4 +307,5 @@ def run(config_path: Optional[str], mode: str) -> None:
     try:
         asyncio.run(main_hub(cfg, mode))
     except KeyboardInterrupt:
-        console.print("\\n[bold yellow]Shutdown requested. Exiting ARGOS hub.")
+        console.print("\n[bold yellow]Shutdown requested. Exiting ARGOS hub.")
+

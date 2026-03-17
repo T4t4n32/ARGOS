@@ -6,13 +6,17 @@
 
 project:
   name: ARGOS
-  version: 0.1.0
+  version: 1.1.0
 
 hardware:
   board: raspberry_pi_5
   i2c_bus: 1
 
   sensors:
+    temperature:
+      cs_pin: 17
+      rref: 430.0
+      wires: 3  
     bme280:
       enabled: true
       address: 0x76
