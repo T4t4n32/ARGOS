@@ -1,0 +1,53 @@
+# This file contains the real configuration for your ARGOS system.
+# You should copy the settings from argos.example.yaml and adjust them
+# according to your hardware wiring and operational thresholds.
+# It is intentionally gitignored in the original repository to avoid
+# leaking sensitive details such as LoRa frequencies or ADC calibration.
+
+project:
+  name: ARGOS
+  version: 0.1.0
+
+hardware:
+  board: raspberry_pi_5
+  i2c_bus: 1
+
+  sensors:
+    bme280:
+      enabled: true
+      address: 0x76
+    vl53l0x:
+      enabled: true
+      address: 0x29
+    mq135:
+      enabled: true
+      adc_required: true
+      adc_model: ADS1115
+      channel: 0
+
+  motors:
+    enabled: true
+    driver: H_BRIDGE
+    pwm_pins: [12, 13, 18, 19]
+
+  lora:
+    enabled: true
+    frequency_mhz: 433
+    spi_bus: 0
+    spi_cs: 0
+    reset_pin: 22
+    busy_pin: 23
+
+  light:
+    enabled: true
+    gpio_pin: 17
+
+thresholds:
+  oxygen_deficient_percent: 19.5
+  co2_twa_ppm: 5000
+  obstacle_distance_mm: 200
+
+runtime:
+  log_dir: ../data/logs
+  evidence_dir: ../data/evidence
+  telemetry_interval_s: 1

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "argos_app"
+version = "0.1.0"
+description = "ARGOS – Sistema de reconocimiento y seguridad en cuevas"
+authors = [{ name = "CALIBOTS", email = "contacto@example.com" }]
+readme = "../README.md"
+requires-python = ">=3.10"
+
+# Declare runtime dependencies here. Additional packages such as spidev,
+# smbus2, opencv-python, or TensorFlow Lite may be required depending on
+# the final implementation of sensors and vision modules. Only essential
+# dependencies are listed; modify as needed.
+dependencies = [
+    "rich>=13.0.0",
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+argos = "argos_app.cli:main"

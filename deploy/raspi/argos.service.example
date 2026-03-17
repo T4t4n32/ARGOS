@@ -1,16 +1,16 @@
 [Unit]
-Description=ARGOS V1 Service
-After=network-online.target
-Wants=network-online.target
+Description=ARGOS monitoring service
+After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/argos/software
-ExecStart=/opt/argos/software/.venv/bin/python -m argos_app
-Restart=always
-RestartSec=2
-User=argos
-Environment=ARGOS_CONFIG=/opt/argos/software/config/argos.yaml
+# Replace 'pi' with the appropriate user on your system.
+User=pi
+WorkingDirectory=/opt/argos
+
+# Use the virtual environment's python if installed, otherwise fall back
+ExecStart=/usr/bin/env python3 -m argos_app --mode hardware --config /opt/argos/config/argos.yaml
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
