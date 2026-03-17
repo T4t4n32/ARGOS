@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 25 30% 6%;
+    --foreground: 40 20% 90%;
+
+    --card: 25 20% 10%;
+    --card-foreground: 40 20% 90%;
+
+    --popover: 25 20% 10%;
+    --popover-foreground: 40 20% 90%;
+
+    --primary: 40 76% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 160 40% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 25 15% 14%;
+    --muted-foreground: 40 15% 55%;
+
+    --accent: 8 70% 52%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 5 63% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 40 20% 18%;
+    --input: 40 20% 18%;
+    --ring: 40 76% 50%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 25 20% 8%;
+    --sidebar-foreground: 40 20% 90%;
+    --sidebar-primary: 40 76% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 15% 14%;
+    --sidebar-accent-foreground: 40 20% 90%;
+    --sidebar-border: 40 20% 18%;
+    --sidebar-ring: 40 76% 50%;
+
+    --dark-brown: 25 30% 6%;
+    --sand: 40 40% 20%;
+    --teal: 160 40% 45%;
+    --mustard: 40 76% 50%;
+    --crimson: 8 70% 52%;
+
+    /* Futuristic gradient tokens */
+    --gradient-gold: linear-gradient(135deg, hsl(40 76% 50%), hsl(45 90% 65%));
+    --gradient-teal: linear-gradient(135deg, hsl(160 40% 45%), hsl(170 60% 60%));
+    --gradient-crimson: linear-gradient(135deg, hsl(8 70% 52%), hsl(25 80% 55%));
+    --glow-gold: 0 0 40px hsl(40 76% 50% / 0.3), 0 0 80px hsl(40 76% 50% / 0.1);
+    --glow-teal: 0 0 40px hsl(160 40% 45% / 0.3), 0 0 80px hsl(160 40% 45% / 0.1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply rounded-xl border border-primary/10 bg-card/60 backdrop-blur-xl shadow-lg;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-500 hover:border-primary/30 hover:shadow-[0_0_30px_hsl(40_76%_50%/0.15)] hover:scale-[1.02];
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(40 76% 50% / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(40 76% 50% / 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .grid-bg-strong {
+    background-image:
+      linear-gradient(hsl(40 76% 50% / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(40 76% 50% / 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(40 76% 50%), hsl(45 90% 70%));
+  }
+
+  .text-gradient-teal {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(160 40% 45%), hsl(170 70% 65%));
+  }
+
+  .text-gradient-crimson {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(8 70% 52%), hsl(25 80% 60%));
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 30px hsl(40 76% 50% / 0.2), 0 0 60px hsl(40 76% 50% / 0.1);
+  }
+
+  .glow-teal {
+    box-shadow: 0 0 30px hsl(160 40% 45% / 0.2), 0 0 60px hsl(160 40% 45% / 0.1);
+  }
+
+  .glow-crimson {
+    box-shadow: 0 0 30px hsl(8 70% 52% / 0.2), 0 0 60px hsl(8 70% 52% / 0.1);
+  }
+
+  .section-dark {
+    @apply bg-background grid-bg;
+  }
+
+  .section-darker {
+    @apply bg-muted/30 grid-bg-strong;
+  }
+}
+
+@layer utilities {
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotateY(0deg); }
+    50% { transform: translateY(-20px) rotateY(5deg); }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 40px hsl(40 76% 50% / 0.3), 0 0 80px hsl(40 76% 50% / 0.1); }
+    50% { box-shadow: 0 0 60px hsl(40 76% 50% / 0.5), 0 0 120px hsl(40 76% 50% / 0.2); }
+  }
+
+  @keyframes scan-line {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+}
