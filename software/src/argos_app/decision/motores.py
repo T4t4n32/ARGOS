@@ -1,53 +1,93 @@
-import RPi.GPIO as GPIO
+import lgpio
 
 class ControlMotores:
     def __init__(self, velocidad=30):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-
-        # Motor 1 (izquierdo delantero)
-        self.en1 = 13
+        # Motor izquierdo
+        self.en1   = 13
         self.in1_1 = 17
         self.in1_2 = 27
+        # Motor derecho
+        self.en2   = 12
+        self.in2_1 = 22
+        self.in2_2 = 23
 
-        # Configurar pines como salida
-        self.pines = [self.en1, self.in1_1, self.in1_2]
-        for pin in self.pines:
-            GPIO.setup(pin, GPIO.OUT)
+        self.velocidad = velocidad
 
-        # Configurar PWM en el pin en1
-        self.pwm = GPIO.PWM(self.en1, 100)  # Frecuencia 100Hz
-        self.pwm.start(0)  # Inicia apagado
+        # Abrir chip GPIO
+        self.h = lgpio.gpiochip_open(0)
 
-        self.velocidad = velocidad  # Valor entre 0 y 100
+        # Configurar todos los pines como salida
+        pines = [self.en1, self.in1_1, self.in1_2,
+                 self.en2, self.in2_1, self.in2_2]
+        for pin in pines:
+            lgpio.gpio_claim_output(self.h, pin)
+
+        # Iniciar PWM apagado
+        lgpio.tx_pwm(self.h, self.en1, 100, 0)
+        lgpio.tx_pwm(self.h, self.en2, 100, 0)
+
         self.detener()
 
-    # Métodos internos
-    def _motor_adelante(self):
-        GPIO.output(self.in1_1, GPIO.HIGH)
-        GPIO.output(self.in1_2, GPIO.LOW)
-        self.pwm.ChangeDutyCycle(self.velocidad)
+    # ── Métodos internos ────────────────────────────────────
 
-    def _motor_atras(self):
-        GPIO.output(self.in1_1, GPIO.LOW)
-        GPIO.output(self.in1_2, GPIO.HIGH)
-        self.pwm.ChangeDutyCycle(self.velocidad)
+    def _izquierdo_adelante(self):
+        lgpio.gpio_write(self.h, self.in1_1, 1)
+        lgpio.gpio_write(self.h, self.in1_2, 0)
+        lgpio.tx_pwm(self.h, self.en1, 100, self.velocidad)
 
-    def _motor_detener(self):
-        GPIO.output(self.in1_1, GPIO.LOW)
-        GPIO.output(self.in1_2, GPIO.LOW)
-        self.pwm.ChangeDutyCycle(0)
+    def _izquierdo_atras(self):
+        lgpio.gpio_write(self.h, self.in1_1, 0)
+        lgpio.gpio_write(self.h, self.in1_2, 1)
+        lgpio.tx_pwm(self.h, self.en1, 100, self.velocidad)
 
-    # Métodos públicos
+    def _izquierdo_detener(self):
+        lgpio.gpio_write(self.h, self.in1_1, 0)
+        lgpio.gpio_write(self.h, self.in1_2, 0)
+        lgpio.tx_pwm(self.h, self.en1, 100, 0)
+
+    def _derecho_adelante(self):
+        lgpio.gpio_write(self.h, self.in2_1, 1)
+        lgpio.gpio_write(self.h, self.in2_2, 0)
+        lgpio.tx_pwm(self.h, self.en2, 100, self.velocidad)
+
+    def _derecho_atras(self):
+        lgpio.gpio_write(self.h, self.in2_1, 0)
+        lgpio.gpio_write(self.h, self.in2_2, 1)
+        lgpio.tx_pwm(self.h, self.en2, 100, self.velocidad)
+
+    def _derecho_detener(self):
+        lgpio.gpio_write(self.h, self.in2_1, 0)
+        lgpio.gpio_write(self.h, self.in2_2, 0)
+        lgpio.tx_pwm(self.h, self.en2, 100, 0)
+
+    # ── Métodos públicos ────────────────────────────────────
+
     def avanzar(self):
-        self._motor_adelante()
+        """Ambos motores adelante"""
+        self._izquierdo_adelante()
+        self._derecho_adelante()
 
     def retroceder(self):
-        self._motor_atras()
+        """Ambos motores atrás"""
+        self._izquierdo_atras()
+        self._derecho_atras()
+
+    def girar_derecha(self):
+        """Motor izquierdo adelante, derecho atrás"""
+        self._izquierdo_adelante()
+        self._derecho_atras()
+
+    def girar_izquierda(self):
+        """Motor derecho adelante, izquierdo atrás"""
+        self._derecho_adelante()
+        self._izquierdo_atras()
 
     def detener(self):
-        self._motor_detener()
+        """Detiene ambos motores"""
+        self._izquierdo_detener()
+        self._derecho_detener()
 
     def limpiar(self):
-        self.pwm.stop()
-        GPIO.cleanup()
+        lgpio.tx_pwm(self.h, self.en1, 100, 0)
+        lgpio.tx_pwm(self.h, self.en2, 100, 0)
+        lgpio.gpiochip_close(self.h)
