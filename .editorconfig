@@ -1,5 +1,6 @@
 root = true
 
+# All files
 [*]
 charset = utf-8
 end_of_line = lf
@@ -8,14 +9,22 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
+# Python
 [*.py]
 indent_size = 4
 
+# Markdown
 [*.md]
 trim_trailing_whitespace = false
 
-[*.yml]
+# YAML
+[*.{yml,yaml}]
 indent_size = 2
 
-[*.yaml]
+# C/C++/Arduino
+[*.{c,cpp,h,hpp,ino}]
+indent_size = 2
+
+# Web (JS, TS, JSON, HTML, CSS)
+[*.{js,jsx,ts,tsx,json,html,css}]
 indent_size = 2

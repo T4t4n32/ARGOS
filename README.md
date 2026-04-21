@@ -1,223 +1,379 @@
-# ARGOS – Sistema integral de reconocimiento y seguridad en cuevas
-
-Bienvenido al repositorio **ARGOS**, un proyecto de ingeniería enfocado en el **monitoreo ambiental** y la **seguridad** en operaciones de exploración de cuevas.  El sistema integra hardware, firmware embebido y software de alto nivel para obtener datos del entorno subterráneo (calidad del aire, temperatura, distancia) y enviarlos de forma inalámbrica mediante **LoRa** hacia una estación base donde se visualizan y analizan los resultados.  ARGOS surge como iniciativa del grupo **CALIBOTS**, orientada a prototipos educativos y de investigación.
-
 <div align="center">
-  <img src="assets/brand/SIN_FONDO.png" alt="Logo de ARGOS" width="600" />
+  <img src="assets/brand/ARGOS_SF.png" alt="Logo ARGOS" width="480" />
 </div>
 
-<div align="center"><img src="assets/brand/LOGO_ARGOS.png" alt="Logo de ARGOS" width="600"></div>
+<h1 align="center">ARGOS</h1>
+<h3 align="center">Sistema de Reconocimiento y Seguridad en Cuevas</h3>
 
-- **Estado**: en desarrollo
-- **Plataforma principal**: Raspberry Pi 5
-- **Lenguaje principal**: Python (software) + C/C++ (firmware)
-- **Licencia**: MIT
+<div align="center">
 
-## Tabla de contenidos
+![Version](https://img.shields.io/badge/versión-1.0.0-blue?style=flat-square)
+![Estado](https://img.shields.io/badge/estado-en%20desarrollo-orange?style=flat-square)
+![Licencia](https://img.shields.io/badge/licencia-MIT-green?style=flat-square)
+![Plataforma](https://img.shields.io/badge/plataforma-Raspberry%20Pi%205-c51a4a?style=flat-square)
+![Python](https://img.shields.io/badge/python-≥3.10-3776ab?style=flat-square)
+![Equipo](https://img.shields.io/badge/equipo-CALIBOTS%20KAIROS-blueviolet?style=flat-square)
 
-1. [Contexto y problema](#contexto-y-problema)
-2. [Objetivos](#objetivos)
-3. [Arquitectura](#arquitectura)
-4. [Estructura del repositorio](#estructura-del-repositorio)
-5. [Instalación](#instalación)
-6. [Ejecución](#ejecución)
-7. [Contribución](#contribución)
-8. [Créditos](#créditos)
-9. [Licencia](#licencia)
+</div>
 
 ---
 
-## Contexto y problema
+**ARGOS** es un robot autónomo para monitoreo ambiental y seguridad en operaciones de exploración de cuevas.
+Integra hardware embebido, firmware de comunicaciones LoRa y software en Python para medir el entorno subterráneo, mapear el espacio con LiDAR, detectar riesgos y transmitir telemetría en tiempo real hacia una estación base.
 
-La exploración de cuevas presenta riesgos significativos debido a la **falta de iluminación**, la **variación en la calidad del aire** y la **posible presencia de obstáculos o espacios estrechos**.  Los expedicionarios requieren herramientas confiables para evaluar el entorno y tomar decisiones de forma segura.  ARGOS busca proporcionar un **sistema autónomo** que recopile datos ambientales, detecte riesgos y permita transmitir información en tiempo real hacia la superficie.  Así se mejoran los protocolos de seguridad y se reducen los accidentes en actividades de espeleología.
+> Proyecto educativo y de investigación del equipo **CALIBOTS KAIROS** — desarrollado con disciplina de ingeniería y evidencia real.
 
-## Objetivos
+---
+
+## Tabla de contenidos
+
+1. [Contexto y problema](#1-contexto-y-problema)
+2. [Protocolo operativo](#2-protocolo-operativo)
+3. [Objetivos](#3-objetivos)
+4. [Electrónica y sensores](#4-electrónica-y-sensores)
+5. [Arquitectura del sistema](#5-arquitectura-del-sistema)
+6. [Estructura del repositorio](#6-estructura-del-repositorio)
+7. [Instalación](#7-instalación)
+8. [Ejecución](#8-ejecución)
+9. [Interfaz web (Lovable-UI)](#9-interfaz-web-lovable-ui)
+10. [Roadmap](#10-roadmap)
+11. [Contribución](#11-contribución)
+12. [Seguridad](#12-seguridad)
+13. [Créditos y licencia](#13-créditos-y-licencia)
+
+---
+
+## 1. Contexto y problema
+
+La exploración de cuevas expone a las personas a riesgos serios: **baja visibilidad**, **variación de calidad del aire** (CO₂, gases), **temperatura extrema**, **obstáculos y geometrías desconocidas**. Las decisiones se toman con información limitada.
+
+ARGOS busca solucionar eso con un **prototipo autónomo** que:
+
+- mide el entorno antes de que entre una persona,
+- transmite datos en tiempo real a la superficie,
+- registra evidencia (video, logs, mapa 2D/3D),
+- emite alertas si se detecta riesgo.
+
+El sistema **no reemplaza protocolos profesionales de rescate ni certificaciones de seguridad**. Es un prototipo educativo orientado a demostrar la aplicación de tecnología en seguridad operativa.
+
+---
+
+## 2. Protocolo operativo
+
+ARGOS sigue un ciclo de tres fases:
+
+```
+ANTES               DURANTE             DESPUÉS
+─────────────────   ─────────────────   ─────────────────
+Configurar misión   Monitorear ambiente  Analizar registros
+Verificar hardware  Detectar riesgos    Revisar evidencia
+Cargar umbrales     Transmitir datos    Generar reporte
+                    Alertar si riesgo   Actualizar bitácora
+```
+
+Esta lógica guía toda la arquitectura: los módulos de `sensors/`, `decision/` y `comms/` corresponden directamente a las tres fases.
+
+---
+
+## 3. Objetivos
 
 ### Objetivo general
 
-Diseñar, implementar y validar un sistema denominado **ARGOS** capaz de **monitorear parámetros ambientales en cuevas**, procesar la información en una unidad central (Raspberry Pi) y transmitir datos mediante comunicaciones de largo alcance para su visualización y análisis.
+Diseñar, implementar y validar **ARGOS**: un sistema robótico capaz de monitorear parámetros ambientales en cuevas, procesar la información localmente y transmitir telemetría a larga distancia para su visualización y análisis en superficie.
 
 ### Objetivos específicos
 
-- Desarrollar una arquitectura modular que integre hardware (sensores, actuadores), firmware y software.
-- Implementar drivers para sensores de calidad de aire (MQ‑135), temperatura/humedad (BME280) y distancia (VL53L0X).
-- Desplegar un esquema de comunicaciones LoRa para telemetría y un módulo de visión basado en cámara USB y algoritmos de detección con OpenCV/YOLO.
-- Diseñar una interfaz de consola para la visualización de datos y la configuración del sistema.
-- Validar el prototipo en un entorno controlado simulando condiciones de una cueva y medir su desempeño.
+- Integrar sensores de calidad del aire (MQ-135), temperatura/humedad (PT100 + MAX31865, BME280), distancia (VL53L0X) y mapeo (LiDAR).
+- Implementar comunicación LoRa a 433 MHz entre robot y estación base.
+- Desarrollar un motor de decisión que evalúe riesgo en tres niveles (verde / amarillo / rojo).
+- Capturar video con cámara USB y aplicar detección visual con OpenCV/YOLO.
+- Mapear el entorno con LiDAR para generar representaciones 2D/3D de la cueva.
+- Desplegar una interfaz web (Lovable-UI) para visualización de datos y dashboard en tiempo real.
+- Validar el prototipo en entorno controlado ("cueva simulada") y medir desempeño repetible.
 
-## Arquitectura
+---
 
-La arquitectura de ARGOS se basa en tres capas claramente diferenciadas:
+## 4. Electrónica y sensores
+
+### 4.1 Inventario de componentes
+
+| Subsistema | Componente | Protocolo | Estado |
+|---|---|---|---|
+| **Procesamiento** | Raspberry Pi 5 | — | ✅ Operativo |
+| **Temperatura (precisión)** | PT100 + MAX31865 | SPI (CS GPIO 17) | ⚠️ Driver parcial |
+| **Temperatura / Humedad / Presión** | BME280 | I²C @ 0x76 | ⚠️ Declarado, sin driver |
+| **Distancia (ToF)** | VL53L0X | I²C @ 0x29 | ⚠️ Declarado, sin driver |
+| **Calidad de aire** | MQ-135 + ADS1115 | Analógico → ADC I²C ch.0 | ⚠️ Driver stub |
+| **Mapeo** | LiDAR | (por definir: UART/USB/I²C) | 🔲 Planificado |
+| **Comunicación TX** | LoRa SX1278 (Ra-02) | SPI, RadioLib, 433 MHz | ✅ Firmware operativo |
+| **Comunicación RX** | LoRa SX1262 (Heltec ESP32) | SPI, RadioLib, 433 MHz | ✅ Firmware operativo |
+| **Visión** | Cámara USB + OpenCV/YOLO | USB | ⚠️ Stub simulado |
+| **Iluminación** | LED / Linterna | GPIO | ⚠️ Declarado, sin driver |
+| **Movimiento** | 6 motores DC + 3 puentes H | PWM GPIO [12,13,18,19] | ⚠️ Driver stub |
+| **Alimentación** | Batería (capacidad por definir) | — | 🔲 Por especificar |
+
+> **Leyenda:** ✅ Operativo · ⚠️ Parcial o stub · 🔲 Planificado
+
+### 4.2 Advertencia sobre el MQ-135
+
+El MQ-135 **no mide oxígeno**. Es un sensor de gases analógico no selectivo, que en ARGOS se usa como **indicador cualitativo de aire degradado** para disparar alertas preventivas. No reemplaza sensores certificados de O₂ o CO₂.
+
+> *"ARGOS V1 usa MQ-135 como proxy cualitativo y no reemplaza sensores certificados de O₂/CO₂."*
+> — Posición oficial del equipo (ver [`SECURITY.md`](SECURITY.md))
+
+---
+
+## 5. Arquitectura del sistema
 
 ```
-
-[ Usuario / Interfaz ]  
-| ← consola de monitoreo  
-v  
-[ Software de aplicación ]  
-| ← CLI `argos` y módulos Python  
-v  
-[ Firmware / Control embebido ]  
-| ← microcontroladores con Arduino/PlatformIO  
-v  
-[ Hardware ] ← sensores (MQ‑135, BME280, VL53L0X), cámara USB, módulos LoRa, motores
-
+┌─────────────────────────────────────────────────────────────┐
+│                   ESTACIÓN BASE (superficie)                 │
+│           Lovable-UI · Dashboard · Análisis de datos         │
+└───────────────────────┬─────────────────────────────────────┘
+                        │ LoRa 433 MHz (telemetría)
+                        │ SX1262 RX (Heltec ESP32)
+┌───────────────────────┴─────────────────────────────────────┐
+│                    ROBOT — Raspberry Pi 5                    │
+│                                                              │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
+│  │ sensors/ │  │decision/ │  │  comms/  │  │ vision/  │   │
+│  │ PT100    │  │  Motor   │  │  LoRa TX │  │ Cámara   │   │
+│  │ BME280   │→ │  Riesgo  │→ │  SX1278  │  │ OpenCV   │   │
+│  │ VL53L0X  │  │ Verde /  │  │  433 MHz │  │ YOLO     │   │
+│  │ MQ-135   │  │ Amarillo │  └──────────┘  └──────────┘   │
+│  │ LiDAR    │  │ Rojo     │                                 │
+│  └──────────┘  └──────────┘                                 │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │               argos_app (Python ≥ 3.10)              │   │
+│  │  runtime.py · cli.py · asyncio hub · YAML config     │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│  Hardware:  6 motores DC + 3 puentes H · LED/Linterna       │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-1. **Hardware** – Incluye la Raspberry Pi 5 como unidad central, sensores de gas, temperatura y distancia, cámara USB, iluminación, módulos LoRa Heltec para comunicación de largo alcance y motores controlados mediante puentes H.  La lista detallada de materiales se encuentra en `hardware/bom.md`.
-2. **Firmware** – Programas embebidos para las placas de sensores/actuadores que gestionan la lectura de datos y la comunicación LoRa.  Cada módulo tiene un directorio propio bajo `firmware/` y un README con instrucciones de compilación.
-3. **Software** – Aplicación escrita en Python que corre en la Raspberry Pi.  Esta capa inicializa la configuración (`config/argos.yaml`), se comunica con los microcontroladores, procesa la telemetría, gestiona el registro de datos y muestra la información en la consola.  Se distribuye como paquete `argos_app` instalable mediante `pip`.
+**Flujo de datos:**
+1. `sensors/` lee sensores periódicamente y empuja lecturas a la cola async.
+2. `decision/` evalúa las lecturas contra umbrales y calcula el nivel de riesgo.
+3. `comms/` toma la telemetría y la transmite vía LoRa hacia la estación base.
+4. `vision/` captura frames con la cámara, detecta objetos y registra evidencia.
+5. El LiDAR genera un mapa 2D/3D del entorno que se almacena localmente y se envía por LoRa.
 
-## Estructura del repositorio
+---
+
+## 6. Estructura del repositorio
 
 ```
-
-ARGOS/  
-├── assets/ # Logos, diagramas y otros recursos gráficos  
-├── config/  
-│ ├── argos.example.yaml # Plantilla de configuración del sistema  
-│ └── argos.yaml # Configuración real (gitignored)  
-├── deploy/  
-│ └── raspi/ # Archivos de despliegue (systemd service)  
-├── docs/  
-│ ├── architecture/ # Diagramas y descripciones técnicas  
-│ ├── identity/ # Manual de identidad visual  
-│ ├── references/ # Bibliografía APA/IEEE  
-│ ├── safety/ # Protocolos de seguridad y umbrales  
-│ ├── templates/ # Plantillas para cronogramas, BOM, pruebas  
-│ ├── thesis/ # Documentación de tesis por capítulos  
-│ └── readme.md # Guía de la documentación  
-├── firmware/  
-│ ├── button_tx/ # Firmware para el transmisor de pulsador  
-│ └── ... # Otros módulos embebidos  
-├── hardware/  
-│ └── bom.md # Lista de materiales y enlaces  
-├── software/  
-│ ├── pyproject.toml # Configuración de empaquetado de `argos_app`  
-│ ├── src/argos_app/  
-│ │ ├── **init**.py  
-│ │ ├── **main**.py # Punto de entrada para `python -m argos_app`  
-│ │ ├── cli.py # Definición del comando `argos`  
-│ │ ├── runtime.py # Carga de configuración y arranque  
-│ │ ├── comms/ # Módulos de comunicación (LoRa, Wi‑Fi)  
-│ │ ├── sensors/ # Drivers de BME280, VL53L0X, MQ‑135  
-│ │ ├── decision/ # Motor de riesgo y generación de alertas  
-│ │ ├── vision/ # Captura con cámara y detección con OpenCV/YOLO  
-│ │ └── utils/ # Funciones de apoyo  
-│ └── tests/ # Pruebas unitarias  
-├── tests/ # Pruebas adicionales del repositorio  
-├── .editorconfig  
-├── .gitignore  
-├── CHANGELOG.md  
-├── CODE_OF_CONDUCT.md  
-├── CONTRIBUTING.md  
-└── README.md
+ARGOS/
+├── assets/
+│   └── brand/               # Logos del proyecto (PNG)
+├── datasets/
+│   ├── metadata/            # Metadatos de datasets
+│   └── samples/             # Muestras de datos de prueba
+├── deploy/
+│   └── raspi/
+│       └── argos.service.example   # Servicio systemd
+├── docs/
+│   ├── arquitectura/        # Diagramas y documentos técnicos
+│   ├── identidad/           # Manual de identidad visual
+│   ├── plantillas/          # Cronograma, BOM, bitácora, pruebas
+│   ├── referencias/         # Bibliografía APA / IEEE
+│   ├── seguridad/           # Protocolos y umbrales de seguridad
+│   └── tesis/               # Documento de tesis por capítulos
+├── firmware/
+│   ├── Rx/
+│   │   └── Rx.ino           # Receptor LoRa SX1262 (Heltec ESP32)
+│   └── Tx/
+│       └── Tx.ino           # Transmisor LoRa SX1278 (Ra-02)
+├── hardware/
+│   ├── bom.md               # Lista de materiales con descripciones
+│   ├── datasheets.md        # Referencias a hojas de datos
+│   └── List.md              # Lista detallada por categorías
+├── Lovable-UI/              # Frontend web (Vite + React + Tailwind)
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.ts
+├── software/
+│   ├── config/
+│   │   ├── argos.example.yaml   # Plantilla de configuración (versionar)
+│   │   └── argos.yaml           # Configuración real (gitignored)
+│   ├── legacy/
+│   │   └── current_prototype.py # Prototipo V1 de referencia
+│   ├── pyproject.toml
+│   └── src/
+│       └── argos_app/
+│           ├── __init__.py
+│           ├── __main__.py
+│           ├── cli.py           # Comando CLI `argos`
+│           ├── runtime.py       # Hub asíncrono central
+│           ├── comms/           # Driver LoRa
+│           ├── decision/        # Motor de riesgo (verde/amarillo/rojo)
+│           ├── sensors/         # Drivers PT100, MQ-135
+│           └── vision/          # Captura y detección OpenCV/YOLO
+├── tests/                   # Pruebas del repositorio
+├── .editorconfig
+├── .gitignore
+├── CHANGELOG.md
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE.md
+├── SECURITY.md
+└── VERSION
 ```
-### Descripción de carpetas
 
-- **assets/** – Contiene imágenes de diagramas de arquitectura, logotipos y fotos del prototipo.
-- **config/** – Plantillas y configuración real del sistema.  No se debe comprometer la configuración real (`argos.yaml`) para proteger información sensible.
-- **deploy/** – Scripts y plantillas para desplegar la aplicación como servicio en Raspberry Pi.  El archivo `argos.service.example` muestra cómo configurar systemd.
-- **docs/** – Documentación técnica y académica; incluye planos de arquitectura, capítulos de tesis y protocolos de seguridad.
-- **firmware/** – Programas embebidos para microcontroladores; cada subcarpeta corresponde a un módulo físico con su propio README.
-- **hardware/** – Planos, lista de materiales (`bom.md`) y recomendaciones de montaje.
-- **software/** – Código Python que conforma la aplicación ARGOS; empaquetado como módulo instalable.
-- **tests/** – Pruebas unitarias que validan el funcionamiento de las diferentes capas.
-## Instalación
+---
 
-### Requisitos
+## 7. Instalación
 
-- **Hardware:** Raspberry Pi 5 (o compatible) con Raspberry Pi OS Bookworm, fuentes de alimentación adecuadas, sensores y módulos listados en `hardware/bom.md`.
-- **Software:** Python ≥ 3.10, `git`, `pip` y, opcionalmente, PlatformIO o Arduino IDE para el firmware.
+### Requisitos previos
+
+| Requisito | Versión mínima | Notas |
+|---|---|---|
+| Raspberry Pi OS | Bookworm (64-bit) | o compatible |
+| Python | ≥ 3.10 | con `pip` |
+| Git | cualquiera | para clonar |
+| Arduino IDE / PlatformIO | — | solo para firmware |
+
 ### Pasos
 
-1. **Clonar el repositorio:**
+**1. Clonar el repositorio**
 
-   ```bash
-   git clone https://github.com/T4t4n32/ARGOS.git
-   cd ARGOS
-	```
-2. **Preparar el entorno virtual:**
-    
-    ```bash
-    cd software
-    python3 -m venv .venv
-    source .venv/bin/activate
-    ```
-    
-3. **Instalar el paquete y dependencias:**
-    
-    ```bash
-    pip install --upgrade pip
-    pip install .
-    ```
-    
-    Al instalar la carpeta `software` como paquete se genera automáticamente el comando `argos`.
-    
-4. **Copiar la configuración de ejemplo:**
-    
-    ```bash
-    cp config/argos.example.yaml config/argos.yaml
-    # editar config/argos.yaml según pines, sensores y umbrales
-    ```
-    
-5. **(Opcional) Compilar y cargar firmware:** Consulta cada subcarpeta de `firmware/` para compilar con PlatformIO o Arduino IDE.
-    
+```bash
+git clone https://github.com/T4t4n32/A_R_G_O_S-Sistema-de-Reconocimiento-y-Seguridad-en-Cuevas.git
+cd A_R_G_O_S-Sistema-de-Reconocimiento-y-Seguridad-en-Cuevas
+```
 
-## Ejecución
+**2. Crear y activar el entorno virtual**
 
-Una vez instalado el paquete, puedes iniciar ARGOS en modo simulado o en modo hardware.
+```bash
+cd software
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+**3. Instalar el paquete y dependencias**
+
+```bash
+pip install --upgrade pip
+pip install .
+```
+
+Esto instala automáticamente el comando `argos` en el entorno virtual.
+
+**4. Configurar el sistema**
+
+```bash
+cp config/argos.example.yaml config/argos.yaml
+# Editar config/argos.yaml con tus pines, sensores y umbrales reales
+```
+
+**5. (Opcional) Cargar firmware**
+
+Abre cada subcarpeta de `firmware/Rx/` y `firmware/Tx/` con Arduino IDE o PlatformIO.
+Consulta el README de cada módulo para instrucciones de compilación y carga.
+
+---
+
+## 8. Ejecución
 
 ### Modo simulado
 
-Para probar la aplicación sin hardware conectado (envía valores de ejemplo y evita inicializar sensores):
+Permite probar toda la lógica sin hardware físico conectado. Los sensores generan valores pseudo-aleatorios.
 
 ```bash
-argos --mode simulated --config config/argos.yaml
+argos --mode simulated --config software/config/argos.yaml
 ```
 
 ### Modo hardware
 
-Para ejecutar con la Raspberry Pi conectada a los sensores y a los módulos LoRa:
+Activa los drivers reales e intenta inicializar cada sensor declarado en el YAML. Si un driver falla (hardware no disponible), el sistema hace fallback automático al sensor simulado equivalente.
 
 ```bash
-argos --mode hardware --config config/argos.yaml
+argos --mode hardware --config software/config/argos.yaml
 ```
 
-El sistema mostrará información en consola sobre la versión del proyecto, cargará los módulos de sensores, comunicaciones y visión definidos en `argos_app/runtime.py` y comenzará a emitir datos periódicamente.
+### Servicio systemd en Raspberry Pi
 
-### Servicio en Raspberry Pi
-
-Para que la aplicación se ejecute automáticamente al iniciar la Raspberry Pi, copia el archivo de ejemplo a `/etc/systemd/system/` y habilítalo:
+Para que ARGOS se inicie automáticamente con el sistema:
 
 ```bash
 sudo cp deploy/raspi/argos.service.example /etc/systemd/system/argos.service
+# Editar argos.service para ajustar rutas y usuario
 sudo systemctl daemon-reload
 sudo systemctl enable argos
 sudo systemctl start argos
+
+# Verificar estado
+sudo systemctl status argos
 ```
 
-Asegúrate de ajustar las rutas del servicio a la ubicación real de tu instalación (por ejemplo, `/opt/argos`).
+---
 
-## Contribución
+## 9. Interfaz web (Lovable-UI)
 
-Las aportaciones son bienvenidas. Por favor, sigue estos pasos:
+El directorio `Lovable-UI/` contiene el dashboard web del proyecto, desarrollado con **Vite + React + Tailwind CSS**. Permite visualizar telemetría, estado de sensores y datos históricos desde la estación base.
+
+```bash
+cd Lovable-UI
+npm install      # o bun install
+npm run dev      # servidor local en http://localhost:5173
+```
+
+> El frontend está en desarrollo activo. Consulta [`Lovable-UI/README.md`](Lovable-UI/README.md) para más detalles.
+
+---
+
+## 10. Roadmap
+
+Basado en el [`CHANGELOG.md`](CHANGELOG.md):
+
+| Versión | Meta | Estado |
+|---|---|---|
+| **1.0.0** | Estructura base, docs, identidad visual, protocolo "Antes–Durante–Después" | ✅ Completado |
+| **1.1.0** | Sensores reales + logging estable por sesión | 🔄 En desarrollo |
+| **1.2.0** | Telemetría LoRa 433 MHz estable y medida | 🔲 Planificado |
+| **1.3.0** | Visión + evidencia en baja iluminación | 🔲 Planificado |
+| **1.4.0** | Demo integrado FLL-ready (repetible y defendible) | 🔲 Planificado |
+
+---
+
+## 11. Contribución
+
+Las aportaciones son bienvenidas. Pasos básicos:
 
 1. **Fork** del repositorio en GitHub.
-    
-2. Crea una rama para tu mejora o corrección.
-    
-3. Asegúrate de que tu código siga la estructura del proyecto y añade pruebas unitarias cuando sea posible.
-    
-4. Envía un **pull request** describiendo con claridad las modificaciones realizadas.
-    
+2. Crea una rama descriptiva: `git checkout -b feat/nombre-mejora`.
+3. Asegura que tu código siga la estructura del proyecto.
+4. Añade pruebas unitarias cuando sea posible (`tests/`).
+5. Envía un **pull request** con una descripción clara de los cambios.
 
-Consulta `CONTRIBUTING.md` y `CODE_OF_CONDUCT.md` para detalles adicionales.
+Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md) y [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) para detalles completos.
 
-## Créditos
+---
 
-Este proyecto es desarrollado por integrantes del grupo **CALIBOTS** como parte de un esfuerzo educativo y de investigación. Agradecemos a todas las personas que colaboran con sugerencias, pruebas y retroalimentación.
+## 12. Seguridad
 
-## Licencia
+**ARGOS V1 es un prototipo educativo.** No autoriza ni sustituye protocolos profesionales de exploración en cuevas reales.
 
-ARGOS se distribuye bajo la licencia **MIT**. Consulta el archivo [`LICENSE`](https://chatgpt.com/g/g-p-69a0751234a48191ba25738166318ee9-m-a-n-g-o/c/LICENSE.md) para más detalles.
+- Las pruebas se realizan únicamente en **entornos controlados** ("cueva simulada").
+- El MQ-135 se usa como **proxy cualitativo**, no como sensor certificado de O₂/CO₂.
+- No se publica información personal del equipo, credenciales ni datos sensibles.
+
+Para la política completa de seguridad física, operativa y de repositorio: [`SECURITY.md`](SECURITY.md).
+
+---
+
+## 13. Créditos y licencia
+
+Desarrollado por el equipo **CALIBOTS KAIROS** como proyecto educativo y de investigación.
+
+Agradecemos a coaches, mentores y colaboradores que aportan sugerencias, pruebas y retroalimentación.
+
+ARGOS se distribuye bajo la licencia **MIT**. Consulta [`LICENSE.md`](LICENSE.md) para los términos completos.
+
+---
+
+<div align="center">
+  <sub>CALIBOTS KAIROS · ARGOS v1.0.0 · "Seguridad primero. Evidencia real. Cero exageraciones."</sub>
+</div>

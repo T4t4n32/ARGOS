@@ -1,103 +1,49 @@
-# Code of Conduct — ARGOS (CALIBOTS KAIROS)
+# Código de Conducta de ARGOS
 
-Este proyecto lo construye un equipo joven, pero se trabaja con mentalidad profesional: **respeto, seguridad y evidencia**.
+## Nuestro Compromiso
 
-Este Código de Conducta aplica a:
-- reuniones del equipo,
-- trabajo en taller/laboratorio,
-- issues/PRs del repositorio,
-- presentaciones y competencias.
+En el interés de fomentar un ambiente abierto, profesional y seguro, nosotros como contribuyentes y administradores nos comprometemos a hacer de la participación en el proyecto ARGOS una experiencia libre de acoso y riesgos para todos.
 
----
+El proyecto ARGOS, desarrollado por el equipo CALIBOTS KAIROS, prioriza el respeto mutuo, la seguridad física durante las pruebas de hardware y la integridad científica en la recolección de evidencia y datos.
 
-## 1) Filosofía del equipo (reglas simples)
-- **Personas primero.** Nadie aprende si se siente atacado.
-- **Seguridad primero.** Un demo no vale más que una mano, un ojo o una batería bien usada.
-- **Evidencia primero.** No inventamos resultados, métricas ni “funciona perfecto” si no hay prueba.
+## Nuestros Estándares
 
----
+Ejemplos de comportamiento que contribuyen a crear un ambiente positivo y profesional:
 
-## 2) Comportamientos esperados (lo que SÍ hacemos)
-### Respeto y convivencia
-- Escuchar sin interrumpir.
-- Hablar con claridad y sin burlas.
-- Corregir ideas, no personas.
-- Pedir ayuda sin miedo y dar ayuda sin humillar.
+- Utilizar un lenguaje amable e inclusivo.
+- Respetar los diferentes puntos de vista y experiencias de los integrantes.
+- Aceptar retroalimentación y críticas constructivas de manera profesional.
+- Enfocarse en lo que es mejor para la comunidad y los objetivos técnicos del proyecto.
+- Mostrar empatía y disposición para ayudar a otros miembros del equipo.
+- **Priorizar la seguridad física:** Seguir estrictamente los protocolos al manipular hardware, baterías (LiPo/Li-ion) y componentes electrónicos.
+- **Mantener la integridad de los datos:** Documentar resultados reales y abstenerse de falsificar evidencias, métricas o resultados del prototipo.
 
-### Trabajo profesional (aunque seamos estudiantes)
-- Llegar con tarea clara o preguntar qué toca hacer.
-- Mantener orden: archivos con nombre, carpetas correctas, cambios documentados.
-- Cumplir acuerdos del equipo (roles, tiempos, responsables).
-- Avisar cuando algo no está listo (mejor decir “no alcanzó” que inventar).
+Ejemplos de comportamiento inaceptable:
 
-### Seguridad en pruebas
-- Probar solo en entornos controlados (cueva simulada).
-- Usar protección cuando aplique (gafas, guantes, orden del cableado).
-- Parar de inmediato si hay riesgo (humo, calentamiento, cortos, cables sueltos, LiPo inflada).
-- Mantener a un adulto/coaches informado en pruebas de riesgo.
+- Comentarios despectivos, insultos, ataques personales o burlas.
+- Acoso público o privado en cualquier plataforma o entorno físico.
+- Publicar información privada de terceros sin su consentimiento explícito.
+- Ignorar los protocolos de seguridad eléctrica, mecánica o de laboratorio, poniendo en riesgo la integridad de cualquier persona.
+- Modificar componentes de hardware o software críticos sin notificar al equipo, constituyendo un riesgo de sabotaje.
+- Exagerar o falsificar las capacidades reales del prototipo ante terceros o evaluadores.
 
-### Comunicación y conflicto
-- Si hay un problema, se habla con respeto y directo.
-- Si hay discusión técnica, se decide con:
-  1) datos/evidencia,
-  2) prueba rápida,
-  3) criterio del coach si sigue el empate.
+## Directrices de Seguridad y Laboratorio
 
----
+Dada la naturaleza de hardware del proyecto ARGOS, se establecen las siguientes normas de cumplimiento obligatorio en el entorno de desarrollo:
 
-## 3) Comportamientos NO permitidos
-- Insultos, burlas, apodos ofensivos, humillación.
-- Discriminación o acoso de cualquier tipo.
-- Amenazas, gritos para imponer ideas, o presión para hacer pruebas inseguras.
-- Sabotear trabajo: borrar archivos, esconder cosas, cambiar sin avisar.
-- Publicar información privada del equipo o del colegio sin permiso.
+1. **Entorno Controlado:** Las pruebas físicas deben realizarse exclusivamente en entornos simulados, organizados y seguros.
+2. **Supervisión de Energía:** Está estrictamente prohibido manipular baterías de litio o circuitos de motores/actuadores sin la debida precaución, aislamiento y, cuando aplique, supervisión.
+3. **Respuesta Rápida:** Es obligatorio verificar las conexiones antes de energizar el sistema y contar con un método de desconexión rápida (kill-switch) durante las pruebas dinámicas del hardware.
 
----
+## Resolución de Disputas Técnicas
 
-## 4) “Reglas del taller” (ARGOS tiene riesgo real)
-Esto no es exageración: electrónica + baterías + motores pueden ser peligrosos.
+Cuando existan discrepancias sobre el enfoque de desarrollo o arquitectura, la decisión se tomará basándose en:
+1. **Datos y evidencias documentadas** procedentes de pruebas reales.
+2. Resultados de pruebas rápidas de validación (PoC).
+3. En caso de no haber consenso técnico, se escalará a los mentores o directores técnicos del proyecto.
 
-**Prohibido:**
-- Probar LiPo/Li-ion sin supervisión y sin protección (BMS/fusible si aplica).
-- Tocar circuitos energizados sin necesidad.
-- Forzar conectores o alimentar motores desde la Raspberry directamente.
-- “Arreglarlo rápido” con cinta sin revisar seguridad.
+## Aplicación y Reporte
 
-**Obligatorio:**
-- Revisar conexiones antes de encender.
-- Tener plan de apagado rápido.
-- Mantener cables ordenados y protegidos.
-- Registrar incidentes (aunque sea “casi pasa”).
+Instancias de comportamiento inaceptable o prácticas inseguras pueden ser reportadas contactando a los mentores del equipo o a los líderes del proyecto. Todas las quejas serán revisadas e investigadas de manera justa y confidencial.
 
----
-
-## 5) Política de integridad (esto es clave para FLL)
-- No se inventan entrevistas, datos, métricas ni resultados.
-- Si algo falló, se documenta el fallo y cómo se corrige.
-- Si algo está en “prototipo”, se dice “prototipo”.
-- Si algo está planeado, se dice “planeado”.
-
-**Frase oficial:**
-> “Preferimos un prototipo honesto con evidencia, que un proyecto ‘perfecto’ inventado.”
-
----
-
-## 6) Cómo reportar un problema (sin drama)
-Si alguien se siente incómodo o ve una conducta insegura:
-
-1) **Detener la situación** si hay riesgo físico.
-2) Hablar con un coach/mentor (Richard Suárez, Diego) o con el líder designado del equipo.
-3) Si es algo del repo: registrar el incidente en privado y documentar el arreglo.
-
----
-
-## 7) Consecuencias (claras, sin humillar)
-Las decisiones las toman coaches/mentores con criterio educativo.
-
-Posibles acciones:
-- advertencia y conversación,
-- retirar a la persona de una actividad de riesgo,
-- limitar acceso al repositorio temporalmente,
-- reunión formal con el colegio si es grave.
-
----
+Los administradores del proyecto tienen el derecho y la responsabilidad de eliminar, editar o rechazar comentarios, commits, código, ediciones y otras contribuciones que no estén alineadas con este Código de Conducta. El incumplimiento reiterado de las normas de seguridad conllevará la suspensión de la participación en pruebas físicas.

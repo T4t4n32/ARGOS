@@ -1,135 +1,75 @@
-# Changelog — ARGOS (CALIBOTS KAIROS)
+# Changelog
 
-Este archivo cuenta la historia real del proyecto **ARGOS**: lo que se construyó, lo que se mejoró y lo que falta.
-Está escrito para que lo entienda tanto un jurado como alguien del equipo que llega nuevo.
+Todos los cambios notables en el proyecto ARGOS serán documentados en este archivo.
 
-Formato basado en:
-- Keep a Changelog: https://keepachangelog.com/en/1.0.0/
-- Semantic Versioning (SemVer): https://semver.org/
-
-## Convenciones rápidas
-- **Added**: algo nuevo aparece.
-- **Changed**: algo existe, pero cambia su forma o comportamiento.
-- **Fixed**: se arregla algo que estaba mal.
-- **Removed**: se elimina algo (por decisión).
-- **Docs**: documentación.
-- **Safety**: cambios que afectan seguridad física/protocolo.
-
-## “Nota humana”
-Sí: estamos aprendiendo.  
-Sí: a veces algo funciona… y al siguiente día deja de funcionar.  
-No: no inventamos resultados ni “milagros”. Aquí solo se escribe lo que existe o lo que quedó planificado con claridad.
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
+y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
 ## [Unreleased]
-> Lo que está en trabajo activo. Entra aquí primero, y cuando se cumpla el entregable, se pasa a una versión.
+> Cambios actualmente en desarrollo activo. Se trasladarán a una versión formal cuando se completen y verifiquen las pruebas operativas.
 
 ### Added
-- Integración del prototipo actual dentro de `software/legacy/` como “fuente de verdad” del V1 operativo.
-- Registro de sesión unificado (logs por timestamp) con estructura estable para análisis posterior.
-- Reporte final de sesión (resumen de estado, alertas, eventos y evidencia).
-- Telemetría LoRa 433 MHz como canal crítico: estado + alertas en paquetes cortos.
+- Integración del prototipo original dentro de `software/legacy/` como fuente de referencia operativa de la versión 1.
+- Sistema de registro (logging) unificado con marcas de tiempo (timestamps) y estructura estable para análisis posterior.
+- Generador de reportes de final de sesión (resumen de estado, alertas, eventos y evidencia técnica).
+- Implementación de telemetría a través del módulo LoRa a 433 MHz como canal de comunicación crítico.
 
 ### Changed
-- Organización del software hacia módulos (sensores / comunicación / decisión / visión) sin romper el prototipo base.
-- Estandarización de nombres de archivos y rutas para que el equipo no pierda tiempo buscando “dónde iba esto”.
+- Refactorización de la arquitectura de software hacia módulos independientes (sensores, comunicaciones, decisión, visión).
+- Estandarización de nomenclaturas de archivos y rutas del repositorio para mejorar la mantenibilidad.
 
 ### Fixed
-- Recuperación ante fallos comunes de prototipo (lecturas inestables, reinicios, desconexiones).
-- Robustez de arranque (que el sistema no dependa de “hacer magia” para iniciar).
+- Mecanismos de recuperación ante fallos comunes del prototipo de hardware (lecturas inestables, reinicios de módulos, desconexiones I²C).
+- Robustez en la secuencia de arranque del software principal.
 
-### Docs
-- Ajustes finos del documento por capítulos cuando existan resultados medibles (Cap. 4 y Cap. 5).
-- Plantillas de pruebas completadas con datos reales (no simulados).
-
-### Safety
-- Checklist de operación y advertencias validadas por coaches antes de cualquier demo.
+### Security
+- Validación de checklists operativos y advertencias de seguridad física antes de la ejecución de despliegues en simulaciones.
 
 ---
 
-## [1.0.0] — 2026-03-10
-**Release:** “Base sólida, sin improvisar”
+## [1.0.0] - 2026-03-10
+**Release inicial: "Arquitectura Base y Estandarización"**
 
 ### Added
-- Repositorio formal y estable con estructura clara:
-  - `docs/`, `software/`, `hardware/`, `assets/`, `datasets/`, `deploy/`, `tests/`.
-- Documentación tipo proyecto por capítulos (1–5) lista para desarrollo:
-  - Cap. 4 y 5 quedaron como plantilla (sin inventar resultados).
-- Manual del equipo en PDF para que cualquiera pueda explicar ARGOS sin depender de slides.
-- Plantillas operativas:
-  - cronograma, BOM, plan de pruebas, bitácora, checklist, guía de entrevista.
-- Referencias formales (APA e IEEE) para sostener el proyecto con fuentes reales.
-- Guía de identidad visual y selección oficial de logos:
-  - `LOGO_ARGOS.png`, `SIN FONDO.png`, `SINFONDO_12.png`.
+- Repositorio formal y estable con estructura modular (`docs/`, `software/`, `hardware/`, `assets/`, `datasets/`, `deploy/`, `tests/`).
+- Documentación técnica del proyecto estructurada por capítulos.
+- Plantillas operativas para el ciclo de ingeniería (cronogramas, lista de materiales - BOM, plan de pruebas, bitácoras).
+- Lineamientos de identidad visual y logotipos oficiales.
 
 ### Changed
-- Definición oficial del enfoque: **Antes – Durante – Después** (operación) como eje del proyecto.
-- Mensaje oficial del proyecto: prototipo educativo con enfoque de seguridad operativa y trazabilidad.
+- Definición formal del flujo operativo en tres fases: **Antes, Durante y Después**.
+- Alineación del mensaje institucional del proyecto: ARGOS se consolida como una plataforma educativa enfocada en seguridad operativa, medición y trazabilidad.
 
-### Fixed
-- Eliminación de ambigüedad en el discurso:
-  - ARGOS no es “solo reconocer cuevas”.
-  - ARGOS es protocolo: medir → decidir → alertar → evidenciar.
-
-### Docs
-- Documento base listo para que cualquier integrante pueda:
-  - presentar el problema,
-  - justificar el proyecto,
-  - y entender el plan de pruebas.
-
-### Safety
-- Política de seguridad incluida:
-  - pruebas solo en entornos controlados,
-  - y sin presentar MQ-135 como sensor de oxígeno.
-
-#### En palabras del equipo (versión corta)
-- “Dejamos de improvisar. Ahora todo tiene lugar, nombre y explicación.”
-- “Si alguien se pierde, el repo lo trae de vuelta.”
+### Security
+- Establecimiento de políticas de seguridad física para pruebas en entornos controlados ("cueva simulada").
+- Aclaración técnica formal sobre las limitaciones del sensor MQ-135 como indicador proxy, desestimando su uso como sensor de oxígeno certificado.
 
 ---
 
-## [0.1.0] — 2026-03-01
-**Release:** “Primer orden real”
+## [0.1.0] - 2026-03-01
+**Prototipo y Prueba de Concepto**
 
 ### Added
-- Estructura inicial del proyecto y acuerdos técnicos de alto nivel.
-- Primera versión de la narrativa: seguridad + telemetría + evidencia.
+- Estructura inicial del repositorio y definición de acuerdos técnicos de alto nivel.
+- Primera versión de la narrativa técnica: monitoreo, telemetría y recolección de evidencias.
 
 ### Changed
-- Se decidió una ruta realista de prototipo: Raspberry Pi como núcleo y evolución por módulos.
-
-### Fixed
-- “El proyecto existe solo en la cabeza” → pasó a documentos claros.
-- “Cada quien tiene su versión” → se unificó una versión base.
-
-#### En palabras del equipo
-- “Todavía era caos, pero ya era un caos con carpetas.”
+- Definición de la plataforma de hardware central (Raspberry Pi 5) y proyección de arquitectura modular.
 
 ---
 
-## Próximos releases (planificados, no publicados)
-> Esto es un mapa. No se marca como “hecho” hasta tener evidencia (logs, pruebas y demo repetible).
+## Roadmap Planificado
 
-### [1.1.0] — Sensores + logging estable
-**Meta:** lecturas confiables + registro por sesión listo para analizar.
+### [1.1.0] — Estabilización de Sensores
+- **Meta:** Garantizar lecturas confiables de todos los módulos ambientales y consolidar el registro de telemetría por sesión para su posterior análisis.
 
-### [1.2.0] — LoRa 433 MHz estable
-**Meta:** telemetría crítica operativa y medida (pérdidas/estabilidad).
+### [1.2.0] — Red LoRa 433 MHz
+- **Meta:** Puesta en producción de la telemetría remota. Medición de pérdida de paquetes y estabilidad de enlace a distancia.
 
-### [1.3.0] — Visión + evidencia
-**Meta:** capturas por evento y evidencia clara, incluso en baja iluminación con luz controlada.
+### [1.3.0] — Visión y Evidencia
+- **Meta:** Captura autónoma de fotogramas por evento y registro de evidencia en entornos de baja iluminación controlada.
 
-### [1.4.0] — Demo integrado (FLL-ready)
-**Meta:** “antes–durante–después” completo, repetible y defendible ante jueces.
-
----
-
-## Cómo se acepta un cambio en el Changelog (regla interna)
-Un cambio entra al changelog si cumple mínimo:
-- Qué cambió (1 línea)
-- Por qué importa (1 línea)
-- Evidencia (log / foto / video / reporte)
-
-Porque esto lo construye un equipo joven, sí…  
-pero con disciplina de ingeniería.
+### [1.4.0] — Demostración Integrada
+- **Meta:** Validación del ciclo completo (Antes–Durante–Después) en un entorno repetible y auditable.
