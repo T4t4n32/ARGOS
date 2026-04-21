@@ -10,6 +10,7 @@ import JuegoDelRobot from "./pages/JuegoDelRobot";
 import Galeria from "./pages/Galeria";
 import Contacto from "./pages/Contacto";
 import ValorFIRST from "./pages/ValorFIRST";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/juego-del-robot" element={<JuegoDelRobot />} />
           <Route path="/galeria" element={<Galeria />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/valores/:slug" element={<ValorFIRST />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

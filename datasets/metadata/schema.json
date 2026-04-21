@@ -1,0 +1,55 @@
+{
+  "project": "ARGOS",
+  "version": "1.0.0",
+  "description": "Esquema de datos para exportación de telemetría ambiental.",
+  "format": "csv",
+  "columns": [
+    {
+      "name": "timestamp",
+      "type": "datetime",
+      "format": "ISO 8601",
+      "description": "Marca de tiempo exacta de la recolección del dato."
+    },
+    {
+      "name": "session_id",
+      "type": "string",
+      "description": "Identificador único de la sesión de exploración."
+    },
+    {
+      "name": "temp_c",
+      "type": "float",
+      "unit": "Celsius",
+      "description": "Temperatura ambiente leída por PT100 o BME280."
+    },
+    {
+      "name": "humidity_perc",
+      "type": "float",
+      "unit": "%",
+      "description": "Humedad relativa del ambiente (BME280)."
+    },
+    {
+      "name": "pressure_hpa",
+      "type": "float",
+      "unit": "hPa",
+      "description": "Presión atmosférica leída por BME280."
+    },
+    {
+      "name": "gas_mq135_adc",
+      "type": "integer",
+      "unit": "ADC (0-4095)",
+      "description": "Lectura cruda del sensor de calidad de aire MQ-135. Actúa como proxy cualitativo."
+    },
+    {
+      "name": "distance_mm",
+      "type": "integer",
+      "unit": "mm",
+      "description": "Distancia frontal medida por ToF VL53L0X."
+    },
+    {
+      "name": "risk_level",
+      "type": "string",
+      "enum": ["NORMAL", "WARNING", "CRITICAL"],
+      "description": "Evaluación del motor de decisiones (DecisionEngine) en ese instante."
+    }
+  ]
+}

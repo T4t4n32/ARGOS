@@ -14,3 +14,4 @@ rich>=13.7.0
 
 # Testing (dev)
 pytest>=8.0.0
+websockets>=12.0

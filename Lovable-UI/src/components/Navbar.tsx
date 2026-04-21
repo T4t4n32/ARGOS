@@ -9,6 +9,7 @@ const navItems = [
   { label: "Proyecto Innovador", path: "/proyecto-innovador" },
   { label: "Juego del Robot", path: "/juego-del-robot" },
   { label: "Galería", path: "/galeria" },
+  { label: "Dashboard", path: "/dashboard" },
   { label: "Contacto", path: "/contacto" },
 ];
 

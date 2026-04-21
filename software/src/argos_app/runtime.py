@@ -29,6 +29,8 @@ import yaml
 from rich.console import Console
 from rich.table import Table
 
+from .utils.exporter import DatasetExporter
+
 console = Console()
 
 
@@ -218,12 +220,27 @@ async def comms_loop(comms: StubComms, queue: asyncio.Queue) -> None:
         queue.task_done()
 
 
-async def decision_loop(decision: StubDecision, queue: asyncio.Queue) -> None:
+async def decision_loop(decision: StubDecision, queue: asyncio.Queue, exporter: Optional[DatasetExporter] = None) -> None:
     """Consume sensor readings, compute risk level and display to console."""
     while True:
         item_type, data = await queue.get()
         if item_type == "sensor":
             level = decision.evaluate(data)
+            
+            # Export telemetry if exporter is configured
+            if exporter:
+                flat_data = {
+                    "temp": data.get("temperature", {}).get("value", ""),
+                    "gas": data.get("gas", {}).get("value", ""),
+                    "distance": data.get("distance", {}).get("value", "")
+                }
+                if "humidity" in data:
+                    flat_data["humidity"] = data["humidity"].get("value", "")
+                if "pressure" in data:
+                    flat_data["pressure"] = data["pressure"].get("value", "")
+                    
+                exporter.log_telemetry(flat_data, level.upper())
+                
             table = Table(title="ARGOS Risk Level", title_style="bold blue")
             table.add_column("Sensor", style="cyan", no_wrap=True)
             table.add_column("Value", style="magenta")
@@ -278,11 +295,20 @@ async def main_hub(cfg: dict, mode: str) -> None:
         sensors["distance"] = SimulatedSensor("distance", min_val=0.2, max_val=5.0)
 
     # Instantiate communications subsystem
-    comms = StubComms()
+    if mode == "hardware":
+        from .comms.lora import LoRaTransmitter
+        comms = LoRaTransmitter(port="/dev/ttyUSB0", baud=115200) # type: ignore
+    else:
+        comms = StubComms()
     # Instantiate vision subsystem
     vision = StubVision(interval_s=cfg.get("vision", {}).get("interval_s", 2.0))
     # Instantiate decision engine
     decision = StubDecision(thresholds=cfg.get("thresholds"))
+
+    # Instantiate dataset exporter
+    root_dir = str(Path(__file__).resolve().parents[4])
+    export_dir = os.path.join(root_dir, "datasets", "exports")
+    exporter = DatasetExporter(export_dir=export_dir)
 
     # Create a shared queue
     queue: asyncio.Queue = asyncio.Queue()
@@ -292,7 +318,7 @@ async def main_hub(cfg: dict, mode: str) -> None:
         sensor_loop(sensors, update_interval=cfg.get("sensors", {}).get("interval_s", 5.0), queue=queue),
         vision_loop(vision, queue),
         comms_loop(comms, queue),
-        decision_loop(decision, queue),
+        decision_loop(decision, queue, exporter=exporter),
     )
 
 
