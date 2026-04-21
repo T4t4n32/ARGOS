@@ -2,6 +2,7 @@ class SensorMQ5:
     def __init__(self, pin_gas=22):
         self.pin_gas = pin_gas
         import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.pin_gas, GPIO.IN)
         import time
         time.sleep(2)

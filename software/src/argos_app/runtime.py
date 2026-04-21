@@ -30,6 +30,7 @@ from rich.console import Console
 from rich.table import Table
 
 from .utils.exporter import DatasetExporter
+from .sensors.base import BaseSensor
 
 console = Console()
 
@@ -65,7 +66,7 @@ def load_config(config_path: Optional[str]) -> dict:
             path = Path(env)
         else:
             # ascend to the project root (software/src/argos_app -> software/src -> software -> project)
-            root = Path(__file__).resolve().parents[4]
+            root = Path(__file__).resolve().parents[3]
             path = root / "config" / "argos.yaml"
     if not path.exists():
         raise FileNotFoundError(f"Config not found: {path}")
@@ -76,22 +77,6 @@ def load_config(config_path: Optional[str]) -> dict:
 # Stub implementations
 ###############################################################################
 
-class BaseSensor:
-    """Abstract sensor base class.
-
-    Concrete sensor drivers should inherit from this class and
-    implement :meth:`read` to return a dictionary with at least a
-    ``value`` field.  Additional fields (e.g. units, timestamp)
-    may be included.
-    """
-
-    name: str
-
-    def __init__(self, name: str) -> None:
-        self.name = name
-
-    def read(self) -> Dict[str, Any]:
-        raise NotImplementedError
 
 
 class SimulatedSensor(BaseSensor):
@@ -177,36 +162,27 @@ class StubDecision:
 # Hub loops
 ###############################################################################
 
-async def sensor_loop(sensors: Dict[str, BaseSensor], update_interval: float, queue: asyncio.Queue) -> None:
+async def sensor_loop(sensors: Dict[str, BaseSensor], update_interval: float, queues: list[asyncio.Queue]) -> None:
     """Asynchronous loop that reads all sensors periodically and pushes
-    readings into an asyncio queue.
-
-    Parameters
-    ----------
-    sensors : dict
-        Mapping from sensor name to sensor instance.
-    update_interval : float
-        Delay between readings in seconds.
-    queue : asyncio.Queue
-        Queue where sensor readings will be put as a tuple
-        ``("sensor", readings_dict)``.
+    readings into multiple asyncio queues.
     """
     while True:
         readings = {name: sensor.read() for name, sensor in sensors.items()}
-        await queue.put(("sensor", readings))
+        for q in queues:
+            await q.put(("sensor", readings))
         await asyncio.sleep(update_interval)
 
 
-async def vision_loop(vision: StubVision, queue: asyncio.Queue) -> None:
+async def vision_loop(vision: StubVision, queues: list[asyncio.Queue]) -> None:
     """Asynchronous loop that captures images and detections.
 
     The vision subsystem decides its own pacing (via its internal
-    interval).  Each set of detections is pushed into the queue as
-    ``("vision", detections_dict)``.
+    interval).  Each set of detections is pushed into multiple queues.
     """
     while True:
         detections = await vision.capture()
-        await queue.put(("vision", detections))
+        for q in queues:
+            await q.put(("vision", detections))
 
 
 async def comms_loop(comms: StubComms, queue: asyncio.Queue) -> None:
@@ -306,19 +282,20 @@ async def main_hub(cfg: dict, mode: str) -> None:
     decision = StubDecision(thresholds=cfg.get("thresholds"))
 
     # Instantiate dataset exporter
-    root_dir = str(Path(__file__).resolve().parents[4])
+    root_dir = str(Path(__file__).resolve().parents[3])
     export_dir = os.path.join(root_dir, "datasets", "exports")
     exporter = DatasetExporter(export_dir=export_dir)
 
-    # Create a shared queue
-    queue: asyncio.Queue = asyncio.Queue()
+    # Create separate queues for comms and decision to prevent "stolen" messages
+    comms_queue: asyncio.Queue = asyncio.Queue()
+    decision_queue: asyncio.Queue = asyncio.Queue()
 
     # Start all loops concurrently
     await asyncio.gather(
-        sensor_loop(sensors, update_interval=cfg.get("sensors", {}).get("interval_s", 5.0), queue=queue),
-        vision_loop(vision, queue),
-        comms_loop(comms, queue),
-        decision_loop(decision, queue, exporter=exporter),
+        sensor_loop(sensors, update_interval=cfg.get("sensors", {}).get("interval_s", 5.0), queues=[comms_queue, decision_queue]),
+        vision_loop(vision, queues=[comms_queue, decision_queue]),
+        comms_loop(comms, comms_queue),
+        decision_loop(decision, decision_queue, exporter=exporter),
     )
 
 

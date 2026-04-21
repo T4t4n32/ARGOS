@@ -4,9 +4,9 @@ import threading
 import os
 import cv2
 from ultralytics import YOLO
-from decision.motores import ControlMotores
-from comms.lora import LoRaReceiver
-from sensors.mq5 import SensorMQ5
+from .decision.motores import ControlMotores
+from .comms.lora import LoRaReceiver
+from .sensors.mq5 import SensorMQ5
 
 # ── Configuración video ────────────────────────────────────
 CAMARA_ID   = 0
@@ -183,5 +183,5 @@ def main():
         motores.limpiar()
         print("✅ Recursos liberados. Hasta luego!")
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()

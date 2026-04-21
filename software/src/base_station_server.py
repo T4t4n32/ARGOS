@@ -28,7 +28,7 @@ SERIAL_BAUD = 115200
 WS_HOST = "0.0.0.0"
 WS_PORT = 8765
 
-connected_clients: Set[websockets.WebSocketServerProtocol] = set()
+connected_clients: Set = set()
 
 
 # ─── Simulador de telemetría ─────────────────────────────────────────────────
@@ -80,8 +80,9 @@ async def register(websocket):
 
 async def broadcast(message: str):
     if connected_clients:
+        clients = set(connected_clients)  # snapshot para evitar mutación
         await asyncio.gather(
-            *[client.send(message) for client in connected_clients],
+            *[client.send(message) for client in clients],
             return_exceptions=True,
         )
 

@@ -7,7 +7,7 @@ simulated and hardware modes.
 """
 
 import argparse
-from argos_app.runtime import run
+from .runtime import run
 
 
 def main() -> int:

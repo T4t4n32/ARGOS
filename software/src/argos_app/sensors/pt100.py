@@ -38,7 +38,7 @@ from typing import Dict, Any, Optional
 import time
 import math
 
-from ..runtime import BaseSensor
+from .base import BaseSensor
 
 try:
     import spidev  # type: ignore
