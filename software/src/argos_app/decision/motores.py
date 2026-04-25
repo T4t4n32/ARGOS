@@ -1,7 +1,30 @@
-import lgpio
+"""Motor driver for the ARGOS differential-drive chassis.
+
+Uses ``lgpio`` — the recommended GPIO library for Raspberry Pi 5.
+On non-Pi environments the import is caught gracefully so that the
+rest of the package can still be imported (e.g. during tests or in
+simulated mode).
+"""
+
+import logging
+
+try:
+    import lgpio
+except ImportError:  # pragma: no cover
+    lgpio = None  # type: ignore[assignment]
+
+logger = logging.getLogger(__name__)
+
 
 class ControlMotores:
-    def __init__(self, velocidad=30):
+    def __init__(self, velocidad: int = 30) -> None:
+        if lgpio is None:
+            raise ImportError(
+                "lgpio no está disponible. "
+                "Instala con: pip install lgpio\n"
+                "Si estás en un entorno de desarrollo, usa --mode simulated."
+            )
+
         # Motor izquierdo
         self.en1   = 13
         self.in1_1 = 17

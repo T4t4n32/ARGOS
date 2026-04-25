@@ -1,0 +1,17 @@
+# Core
+PyYAML>=6.0
+pydantic>=2.6
+
+# Sensors / GPIO (Pi)
+smbus2>=0.4.3
+RPi.GPIO>=0.7.1
+
+# Vision (optional; heavy)
+opencv-python>=4.9.0.80
+
+# Logging & utilities
+rich>=13.7.0
+
+# Testing (dev)
+pytest>=8.0.0
+websockets>=12.0

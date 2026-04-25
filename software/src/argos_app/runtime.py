@@ -44,9 +44,15 @@ def load_config(config_path: Optional[str]) -> dict:
     2. The environment variable ``ARGOS_CONFIG``, if set.
     3. A default file at ``config/argos.yaml`` relative to the project root.
 
-    ``runtime.py`` resides in ``software/src/argos_app``. The project root
-    is therefore four levels up from this file. By resolving the absolute
-    path of ``__file__`` we can derive the project root dynamically.
+    ``runtime.py`` resides in ``software/src/argos_app``.
+    The ``config/`` directory lives inside ``software/``, which is two
+    levels up from this file::
+
+        software/src/argos_app/runtime.py
+        parents[0] → software/src/argos_app/
+        parents[1] → software/src/
+        parents[2] → software/          ← config/ lives here
+        parents[3] → ARGOS/             ← project root
 
     Parameters
     ----------
@@ -65,11 +71,15 @@ def load_config(config_path: Optional[str]) -> dict:
         if env:
             path = Path(env)
         else:
-            # ascend to the project root (software/src/argos_app -> software/src -> software -> project)
-            root = Path(__file__).resolve().parents[3]
+            # parents[2] = software/ → software/config/argos.yaml
+            root = Path(__file__).resolve().parents[2]
             path = root / "config" / "argos.yaml"
     if not path.exists():
-        raise FileNotFoundError(f"Config not found: {path}")
+        raise FileNotFoundError(
+            f"Config not found: {path}\n"
+            "Tip: copia software/config/argos.example.yaml a software/config/argos.yaml "
+            "o usa --config <ruta> o la variable ARGOS_CONFIG."
+        )
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 

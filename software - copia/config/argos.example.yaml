@@ -1,0 +1,52 @@
+project:
+  name: ARGOS
+  version: 0.1.0
+
+hardware:
+  board: raspberry_pi_5
+
+  # I2C bus (typically 1 on Raspberry Pi)
+  i2c_bus: 1
+
+  sensors:
+    bme280:
+      enabled: true
+      address: 0x76  # common; sometimes 0x77
+    vl53l0x:
+      enabled: true
+      address: 0x29
+    mq135:
+      enabled: true
+      # NOTE: MQ-135 is analog; Raspberry Pi needs an ADC (e.g., ADS1115)
+      adc_required: true
+      adc_model: ADS1115
+      channel: 0
+
+  motors:
+    enabled: true
+    driver: H_BRIDGE
+    pwm_pins: [12, 13, 18, 19]  # placeholder; adjust for your wiring
+
+  lora:
+    enabled: true
+    frequency_mhz: 433
+    spi_bus: 0
+    spi_cs: 0
+    reset_pin: 22
+    busy_pin: 23
+
+  light:
+    enabled: true
+    gpio_pin: 17
+
+thresholds:
+  # Engineering reference only. Do not treat as certified safety thresholds.
+  oxygen_deficient_percent: 19.5
+  co2_twa_ppm: 5000
+
+  obstacle_distance_mm: 200  # example ToF threshold
+
+runtime:
+  log_dir: ../data/logs
+  evidence_dir: ../data/evidence
+  telemetry_interval_s: 1

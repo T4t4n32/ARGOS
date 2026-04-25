@@ -1,0 +1,174 @@
+1) Enunciado del proyecto (versión FLL, 10/10)
+
+Nombre provisional: Argos o Argos Sub (Falta definir)
+
+Idea central: Un sistema integral para explorar cuevas (entornos espeleológicos) con dos capacidades clave:
+- Seguridad → navegación segura en espacios confinados mediante mapeo y detección de riesgos.
+- Identificación → detección automatizada de artefactos/elementos de interés con análisis en tiempo real.
+
+Frase potente (1 línea):
+
+“Reducimos el riesgo humano al explorar cuevas usando mapeo + detección inteligente en tiempo real.”
+
+2) Problema (lo que el juez debe entender en 20 segundos)
+
+En cuevas hay condiciones que vuelven la exploración riesgosa:
+- baja visibilidad
+- pasajes estrechos
+- cambios bruscos de terreno
+- pérdida de señal y orientación
+- riesgo de derrumbes/caídas
+- dificultad para documentar hallazgos sin detenerse
+
+Dolor principal: hoy, explorar puede depender demasiado del humano y de procedimientos lentos/manuales.
+
+3) Usuarios y “quién se beneficia”
+- Equipos de rescate / búsqueda (prioridad: seguridad y rapidez)
+- Espeleólogos (prioridad: exploración controlada + registro)
+- Investigadores/arqueología (prioridad: identificación y documentación)
+
+4) Solución propuesta (en módulos, fácil de explicar)
+Módulo A — “Mitigación de riesgos”
+
+- Mapeo del entorno (LiDAR / sensores pero falta definir cual teniendo en cuenta precios y precision)
+- Alertas de obstáculos o zonas peligrosas
+- Registro del recorrido para retorno seguro
+
+Módulo B — “Identificación inteligente”
+
+- Cámara + IA para reconocer objetos de interés
+- Etiquetado en tiempo real: “detectado / posible / desconocido”
+- Registro con ubicación relativa en el mapa
+
+Lo diferencial (clave): no es “un robot que ve”, es un protocolo de operación segura + análisis de datos.
+
+5) Comunicación: RF vs LoRa (cómo presentarlo sin casarte aún)
+
+Como todavía no deciden, presenten esto como fase de evaluación técnica (eso suma, porque muestra ingeniería).
+
+RF “clásica” (2.4GHz u otras)
+
+Pros: más simple, más velocidad de datos, fácil de probar
+Contras: peor penetración en roca, se puede caer en cuevas
+
+LoRa (sub-GHz)
+
+Pros: mejor alcance y penetración, pensado para baja señal
+Contras: baja tasa de datos (no sirve para video), ideal para telemetría
+
+Conclusión elegante (para jueces):
+
+“Usaremos LoRa para telemetría crítica (estado, alertas, coordenadas relativas) y RF/WiFi solo si el entorno lo permite para transferencias rápidas en superficie.”
+
+Eso suena realista y profesional.
+
+6) IA: lo del Bulbasaur está BIEN (si lo vendes bien)
+
+Empezar con Bulbasaur no es chiste: es un objeto controlado para validar el pipeline:
+
+- captura de imágenes
+- etiquetado
+- entrenamiento
+- prueba de detección en vivo
+- Roadmap de entrenamiento (súper presentable)
+
+Fase 1 — Prueba de concepto
+
+1 clase (Bulbasaur)
+
+meta: que detecte con estabilidad
+
+Fase 2 — Objetos reales de “interés”
+
+casco, cuerda, mosquetón, botiquín, señalización, mochila
+
+meta: detección útil para seguridad y operación
+
+Fase 3 — “Riesgos”
+
+grietas/zonas oscuras (si usan visión), obstáculos
+
+meta: alertas simples (riesgo / no riesgo)
+
+Fase 4 — “Desconocidos”
+
+cuando no sabe: etiqueta “desconocido”
+
+meta: que el sistema sea honesto y no invente
+
+7) Evidencia y validación (lo que más puntúa)
+
+Los jueces no compran “suena cool”, compran evidencia. Necesitan:
+
+Validación de necesidad
+
+3–5 entrevistas (rescate/espeleología/profesor de ciencias/geología)
+
+1 encuesta corta (comunidad escolar o expertos cercanos)
+
+2–3 datos duros (accidentes, riesgos en cuevas, dificultad de comunicación)
+
+Pruebas técnicas simples (prototipo)
+
+demo de detección (pantalla mostrando bounding boxes)
+
+demo de “alerta” (si detecta obstáculo → alerta)
+
+demo de comunicación (LoRa/RF enviando estado)
+
+Métricas fáciles
+
+precisión de detección (ej. “acierta 8/10”)
+
+tiempo de respuesta (ej. “menos de 1s”)
+
+alcance de comunicación en prueba escolar (metros)
+
+8) Cómo lo vuelves FLL-perfecto (rubrica en mente)
+Innovación
+
+problema real + usuarios definidos
+
+solución mejor que lo actual
+
+iteración (cambios con razones)
+
+impacto claro
+
+Robot Design
+
+aunque el foco sea innovación, puedes conectar: “esto puede montarse en un robot explorador”
+
+modularidad (sensores + comunicación)
+
+Core Values
+
+entrevistas y trabajo con otros
+
+roles claros
+
+aprendizaje real (IA, sensores, comunicación)
+
+9) Qué decidir esta semana (para avanzar sin trabarse)
+
+Para que el proyecto no se quede “bonito pero abstracto”, definan 3 cosas:
+
+Qué objetos va a reconocer la IA (lista de 6–10)
+
+Qué sensor de mapeo van a simular o usar (LiDAR real o alternativa)
+
+Qué canal será “crítico” (LoRa telemetría) y cuál “opcional” (RF)
+
+Si quieres, en el siguiente mensaje te lo dejo en formato listo para pegar en su documento FLL:
+
+“Problema” (200 palabras)
+
+“Solución” (200 palabras)
+
+“Innovación” (bullet points)
+
+“Plan de pruebas” (tabla)
+
+“Iteraciones” (plantilla de bitácora)
+
+Y si me dices qué objetos reales quieren detectar primero (además de Bulbasaur), te armo una lista óptima para seguridad + demo rápida.

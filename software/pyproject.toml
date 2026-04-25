@@ -4,20 +4,43 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "argos_app"
-version = "0.1.0"
+version = "1.0.0"
 description = "ARGOS – Sistema de reconocimiento y seguridad en cuevas"
-authors = [{ name = "CALIBOTS", email = "contacto@example.com" }]
+authors = [{ name = "CALIBOTS KAIROS", email = "histsoluciones@gmail.com" }]
 readme = "../README.md"
 requires-python = ">=3.10"
 
-# Declare runtime dependencies here. Additional packages such as spidev,
-# smbus2, opencv-python, or TensorFlow Lite may be required depending on
-# the final implementation of sensors and vision modules. Only essential
-# dependencies are listed; modify as needed.
+# Core runtime dependencies — always required.
 dependencies = [
     "rich>=13.0.0",
     "PyYAML>=6.0",
     "websockets>=12.0",
+    "pyserial>=3.5",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+]
+
+[project.optional-dependencies]
+# Hardware-specific dependencies — install on the Raspberry Pi 5.
+hardware = [
+    "lgpio>=0.2",
+    "spidev>=3.6",
+    "smbus2>=0.4",
+    "adafruit-circuitpython-max31865>=2.3",
+    "adafruit-circuitpython-bme280>=2.6",
+    "adafruit-circuitpython-vl53l0x>=3.6",
+]
+# Computer vision dependencies.
+vision = [
+    "ultralytics>=8.0",
+    "opencv-python-headless>=4.9",
+    "numpy>=1.26",
+]
+# Development / testing extras.
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
 ]
 
 [project.scripts]

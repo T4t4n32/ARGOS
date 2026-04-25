@@ -1,0 +1,31 @@
+Ahora quiero que organices los md que van a mostrarse, me refiero a que redactes:
+- README
+- CHANGELOG
+- CONTRIBUTING
+- SECURITY
+- VERSION
+- CODE_OF_CONDUCT
+- LICENSE
+
+Tambien quiero que ajustes los archivos ocultos como:
+- .editorconfig
+- .gitignore
+
+Tambien carpetas que no quiero que se vean:
+- .calibots-kairos-platform
+- .github/workflows
+- .obsidian
+
+Quiero que redactes un cronograma, para asi, registrar los releases. Por lo menos, ahora tambien me debes dar el release 1.0 o 1.0.0, para asi ir dejando registros
+
+Crea tambien el About que ira en el repositorio.
+
+Quiero ser claro en que:
+- No uses (Demasiados) emojis
+- Aunque no se haya terminado o se tenga gran avance, quiero que lo que redactes sea para vender y para mostrar tambien las ventajas del proyecto, tampoco quiero que te exedas con eso pero si que se pueda vender o que le suene interesante a las personas aunque su desarrollo este empezando.
+- No dudes en preguntar
+- Se claro, objetivo, puntual, directo y sin rodeos
+- Cuando me des codigo (Si en algun caso me llegas a dar codigo), quiero que me lo des completo y nunca quites (O procura no quitar lineas de codigo), siempre trata de sumar.
+
+Otra cosa que quiero que tengas en cuenta es el uso de la Raspberry pi 5, con esto me refiero a que en los planes que hagas, ten presente que tambien debe estar la consideracion de la raspberry
+

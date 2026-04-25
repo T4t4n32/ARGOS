@@ -7,7 +7,12 @@ simulated and hardware modes.
 """
 
 import argparse
+
+from rich.console import Console
+
 from .runtime import run
+
+console = Console(stderr=True)
 
 
 def main() -> int:
@@ -42,5 +47,18 @@ def main() -> int:
         help="Select run mode (default: simulated)",
     )
     args = parser.parse_args()
-    run(config_path=args.config, mode=args.mode)
+    try:
+        run(config_path=args.config, mode=args.mode)
+    except FileNotFoundError as exc:
+        console.print(f"[bold red]Error de configuración:[/bold red] {exc}")
+        return 1
+    except ImportError as exc:
+        console.print(
+            f"[bold red]Dependencia faltante:[/bold red] {exc}\n"
+            "Instala las dependencias con: pip install -r deploy/requirements_pi.txt"
+        )
+        return 1
+    except Exception as exc:  # noqa: BLE001
+        console.print(f"[bold red]Error inesperado:[/bold red] {exc}")
+        raise  # re-raise so the traceback is available when debugging
     return 0
