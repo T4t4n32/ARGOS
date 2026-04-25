@@ -1,0 +1,27 @@
+[Unit]
+Description=ARGOS Robot Main (control completo — modo hardware)
+Documentation=https://github.com/histsoluciones/ARGOS
+# Espera a que el hub esté listo (opcional; quita si los ejecutas por separado)
+After=network-online.target argos-hub.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=argos
+WorkingDirectory=/home/argos/ARGOS
+
+ExecStart=/home/argos/ARGOS/software/.venv/bin/argos-main
+
+Restart=on-failure
+RestartSec=5s
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=argos-main
+
+# Este servicio requiere acceso a GPIO, cámara y serial
+# El usuario "argos" debe estar en los grupos: gpio, video, dialout
+# (el instalador los agrega automáticamente)
+
+[Install]
+WantedBy=multi-user.target

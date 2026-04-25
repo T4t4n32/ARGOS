@@ -1,0 +1,33 @@
+[Unit]
+Description=ARGOS Sensor Hub (asyncio — modo simulado por defecto)
+Documentation=https://github.com/histsoluciones/ARGOS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Cambia "argos" por tu usuario si es diferente
+User=argos
+WorkingDirectory=/home/argos/ARGOS
+
+# Edita --mode hardware para producción con sensores reales.
+# Edita --config si tu argos.yaml no está en software/config/argos.yaml.
+ExecStart=/home/argos/ARGOS/software/.venv/bin/argos-hub \
+    --mode simulated
+
+# Reinicia automáticamente si el proceso termina con error
+Restart=on-failure
+RestartSec=5s
+
+# Salida al journal de systemd (ver con: journalctl -u argos-hub -f)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=argos-hub
+
+# Seguridad básica
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/home/argos/ARGOS/datasets /home/argos/ARGOS/software/logs
+
+[Install]
+WantedBy=multi-user.target
