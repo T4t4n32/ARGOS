@@ -1,0 +1,21 @@
+[Unit]
+Description=ARGOS CSI NoIR camera HLS stream
+After=argos-hotspot.service nginx.service
+Wants=argos-hotspot.service nginx.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/mango/raspi.env
+ExecStart=/opt/mango/raspberry/scripts/start-camera-hls.sh
+Restart=always
+RestartSec=4
+User=root
+WorkingDirectory=/opt/mango/raspberry
+NoNewPrivileges=true
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=argos-stack.target

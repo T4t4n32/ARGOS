@@ -1,0 +1,21 @@
+[Unit]
+Description=ARGOS main robotics application
+After=network-online.target argos-hotspot.service
+Wants=network-online.target
+StartLimitIntervalSec=90
+StartLimitBurst=5
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/argos/argos.env
+ExecStartPre=/bin/bash -lc 'sleep "${ARGOS_BOOT_DELAY_SEC:-8}"'
+ExecStart=/opt/argos/runtime/argos-runner.sh
+Restart=always
+RestartSec=5
+User=root
+WorkingDirectory=/opt/argos/app
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=argos-stack.target
