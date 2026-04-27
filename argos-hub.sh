@@ -1,211 +1,182 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
 # ==============================================================================
-# ARGOS HUB — Script de control maestro
+# ARGOS HUB — entrada única de operación y despliegue
 # ==============================================================================
-# Este script te permite iniciar, detener y revisar el estado de todo el sistema
-# ARGOS (backend en Python + frontend web en Node.js) desde un solo lugar.
+# Uso principal:
+#   ./argos-hub.sh publish   # instala/actualiza el stack de arranque
+#   ./argos-hub.sh start     # inicia ARGOS vía systemd
+#   ./argos-hub.sh status    # auditoría rápida del stack
 # ==============================================================================
 
-# Directorios absolutos para evitar problemas al correr desde systemd
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="$PROJECT_DIR/logs"
+DEPLOY_DIR="$PROJECT_DIR/deploy/raspberry"
+SCRIPT_DIR="$DEPLOY_DIR/scripts"
+ARGOS_ENV_FILE="${ARGOS_ENV_FILE:-/etc/argos/argos.env}"
+RASPI_ENV_FILE="${ENV_FILE:-/etc/mango/raspi.env}"
+STACK_TARGET="argos-stack.target"
 
-# Archivos PID
-BACKEND_PID_FILE="/tmp/argos_backend.pid"
-FRONTEND_PID_FILE="/tmp/argos_frontend.pid"
-
-# Asegurar que existe la carpeta de logs
-mkdir -p "$LOG_DIR"
-
-# Colores para la consola
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+CYAN='\033[0;36m'
+NC='\033[0m'
 
-echo_green() { echo -e "${GREEN}$1${NC}"; }
-echo_yellow() { echo -e "${YELLOW}$1${NC}"; }
-echo_red() { echo -e "${RED}$1${NC}"; }
+log() { printf "${GREEN}[argos-hub]${NC} %s\n" "$*"; }
+warn() { printf "${YELLOW}[argos-hub][WARN]${NC} %s\n" "$*" >&2; }
+err() { printf "${RED}[argos-hub][ERROR]${NC} %s\n" "$*" >&2; }
+die() { err "$*"; exit 1; }
 
-# ---------------------------------------------------------
-# FUNCIONES DE ARRANQUE
-# ---------------------------------------------------------
-start_backend() {
-    if [ -f "$BACKEND_PID_FILE" ] && kill -0 $(cat "$BACKEND_PID_FILE") 2>/dev/null; then
-        echo_yellow "El Backend (ARGOS Python) ya está en ejecución (PID: $(cat "$BACKEND_PID_FILE"))"
-    else
-        echo "Iniciando Backend (ARGOS)..."
-        cd "$PROJECT_DIR/software" || exit 1
-        
-        # Activar entorno virtual si existe
-        if [ -d ".venv" ]; then
-            source .venv/bin/activate
-        else
-            echo_yellow "Advertencia: No se encontró entorno virtual (.venv). Ejecutando con python global."
-        fi
+have_systemd() { command -v systemctl >/dev/null 2>&1 && [[ -d /run/systemd/system || -d /etc/systemd/system ]]; }
+need_file() { [[ -f "$1" ]] || die "No existe el archivo requerido: $1"; }
+need_dir() { [[ -d "$1" ]] || die "No existe el directorio requerido: $1"; }
 
-        # Ejecutar en segundo plano con nohup
-        nohup argos --mode hardware --config config/argos.yaml > "$LOG_DIR/backend.log" 2>&1 &
-        local pid=$!
-        echo $pid > "$BACKEND_PID_FILE"
-        echo_green "Backend iniciado con éxito (PID: $pid)"
-    fi
+as_root() {
+  if [[ "${EUID}" -eq 0 ]]; then
+    "$@"
+  else
+    sudo "$@"
+  fi
 }
 
-start_frontend() {
-    if [ -f "$FRONTEND_PID_FILE" ] && kill -0 $(cat "$FRONTEND_PID_FILE") 2>/dev/null; then
-        echo_yellow "El Frontend (Lovable-UI) ya está en ejecución (PID: $(cat "$FRONTEND_PID_FILE"))"
-    else
-        echo "Iniciando Frontend (Lovable-UI)..."
-        cd "$PROJECT_DIR/Lovable-UI" || exit 1
-        
-        # Ejecutar en segundo plano. "-- --host" expone la app web en la red local
-        nohup npm run dev -- --host > "$LOG_DIR/frontend.log" 2>&1 &
-        local pid=$!
-        echo $pid > "$FRONTEND_PID_FILE"
-        echo_green "Frontend iniciado con éxito (PID: $pid). Disponible en la red."
-    fi
+usage() {
+  cat <<'HELP'
+ARGOS Hub — comando único de operación
+
+Comandos principales:
+  publish | install   Instala/actualiza el despliegue y deja ARGOS al arranque
+  update              Actualiza dependencias/archivos de despliegue
+  start               Inicia todo el stack ARGOS
+  stop                Detiene todo el stack ARGOS
+  restart             Reinicia todo el stack ARGOS
+  status              Estado + diagnóstico operativo
+  audit               Auditoría profunda de deploy, servicios, cámara y app
+  doctor              Diagnóstico Raspberry/cámara/hotspot
+  logs                Logs generales del stack
+  app-log             Logs de argos-app.service
+  camera-log          Logs de argos-camera-hls.service
+  hotspot-log         Logs de argos-hotspot.service
+  enable              Habilita arranque automático
+  disable             Deshabilita arranque automático
+  env                 Muestra rutas de configuración
+  help                Muestra esta ayuda
+
+Ejemplos:
+  ./argos-hub.sh publish
+  ./argos-hub.sh status
+  ./argos-hub.sh logs
+HELP
 }
 
-start_all() {
-    echo "====================================="
-    echo " INICIANDO SISTEMA ARGOS COMPLETO"
-    echo "====================================="
-    start_backend
-    start_frontend
-    echo "====================================="
-    echo_green "Sistema corriendo en segundo plano."
-    echo "Para ver los logs en tiempo real, usa:"
-    echo "  tail -f logs/backend.log"
-    echo "  tail -f logs/frontend.log"
+ensure_deploy_layout() {
+  need_dir "$DEPLOY_DIR"
+  need_file "$DEPLOY_DIR/publicar-argos.sh"
+  need_file "$DEPLOY_DIR/install.sh"
+  need_file "$SCRIPT_DIR/argos-status.sh"
+  need_file "$SCRIPT_DIR/doctor.sh"
 }
 
-# ---------------------------------------------------------
-# FUNCIONES DE DETENCIÓN
-# ---------------------------------------------------------
-stop_process() {
-    local pid_file=$1
-    local name=$2
-    if [ -f "$pid_file" ]; then
-        local pid=$(cat "$pid_file")
-        if kill -0 "$pid" 2>/dev/null; then
-            echo "Deteniendo $name (PID: $pid)..."
-            # Detenemos proceso padre
-            kill "$pid" 2>/dev/null
-            sleep 1
-            # Matamos procesos hijos (importante para npm run dev -> vite)
-            pkill -P "$pid" 2>/dev/null
-            rm -f "$pid_file"
-            echo_green "$name detenido."
-        else
-            rm -f "$pid_file"
-        fi
-    else
-        echo_yellow "$name no está en ejecución."
-    fi
+publish_stack() {
+  ensure_deploy_layout
+  log "Publicando stack ARGOS con deploy/raspberry/publicar-argos.sh ..."
+  as_root bash "$DEPLOY_DIR/publicar-argos.sh"
 }
 
-stop_all() {
-    echo "====================================="
-    echo " DETENIENDO SISTEMA ARGOS"
-    echo "====================================="
-    stop_process "$BACKEND_PID_FILE" "Backend"
-    stop_process "$FRONTEND_PID_FILE" "Frontend"
-    
-    # Seguro adicional (matar remanentes)
-    pkill -f "argos --mode" 2>/dev/null
-    pkill -f "vite" 2>/dev/null
-    echo_green "Sistema completamente detenido."
+update_stack() {
+  ensure_deploy_layout
+  log "Actualizando despliegue Raspberry/ARGOS ..."
+  as_root bash "$DEPLOY_DIR/update.sh"
 }
 
-# ---------------------------------------------------------
-# FUNCIÓN DE ESTADO
-# ---------------------------------------------------------
-status_all() {
-    echo "====================================="
-    echo " ESTADO DEL SISTEMA ARGOS"
-    echo "====================================="
-    if [ -f "$BACKEND_PID_FILE" ] && kill -0 $(cat "$BACKEND_PID_FILE") 2>/dev/null; then
-        echo_green "[✔] Backend (Python) está CORRIENDO (PID: $(cat "$BACKEND_PID_FILE"))"
-    else
-        echo_red "[✖] Backend (Python) está DETENIDO"
-    fi
-
-    if [ -f "$FRONTEND_PID_FILE" ] && kill -0 $(cat "$FRONTEND_PID_FILE") 2>/dev/null; then
-        echo_green "[✔] Frontend (Web)   está CORRIENDO (PID: $(cat "$FRONTEND_PID_FILE"))"
-    else
-        echo_red "[✖] Frontend (Web)   está DETENIDO"
-    fi
+systemd_action() {
+  local action="$1"
+  have_systemd || die "systemd no está disponible en este entorno. Usa publish en la Raspberry Pi."
+  as_root systemctl "$action" "$STACK_TARGET"
 }
 
-# ---------------------------------------------------------
-# INSTALACIÓN EN ARRANQUE (SYSTEMD)
-# ---------------------------------------------------------
-install_service() {
-    echo "Configurando ARGOS para ejecutarse en el arranque de la Raspberry Pi..."
-    local service_file="/etc/systemd/system/argos-hub.service"
-    
-    local USER_NAME=$(whoami)
-    if [ "$USER_NAME" == "root" ]; then
-        USER_NAME=$SUDO_USER
-    fi
-
-    sudo bash -c "cat > $service_file" <<EOL
-[Unit]
-Description=ARGOS Hub - Sistema de control de cuevas
-After=network.target
-
-[Service]
-Type=forking
-User=$USER_NAME
-WorkingDirectory=$PROJECT_DIR
-ExecStart=$PROJECT_DIR/argos-hub.sh start
-ExecStop=$PROJECT_DIR/argos-hub.sh stop
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOL
-
-    sudo systemctl daemon-reload
-    sudo systemctl enable argos-hub.service
-    echo_green "Servicio instalado y activado."
-    echo "ARGOS iniciará automáticamente cuando conectes la Raspberry Pi a la corriente."
-    echo "Puedes gestionar el servicio con: sudo systemctl status argos-hub"
+start_stack() {
+  have_systemd || die "systemd no está disponible."
+  log "Iniciando $STACK_TARGET ..."
+  as_root systemctl start "$STACK_TARGET"
+  as_root systemctl start argos-hotspot.service 2>/dev/null || true
+  as_root systemctl start argos-camera-hls.service 2>/dev/null || true
+  as_root systemctl start argos-app.service 2>/dev/null || true
+  status_stack
 }
 
-# ---------------------------------------------------------
-# ROUTER DE COMANDOS
-# ---------------------------------------------------------
-case "$1" in
-    start)
-        start_all
-        ;;
-    stop)
-        stop_all
-        ;;
-    restart)
-        stop_all
-        sleep 2
-        start_all
-        ;;
-    status)
-        status_all
-        ;;
-    install)
-        install_service
-        ;;
-    *)
-        echo "Uso: ./argos-hub.sh {start|stop|restart|status|install}"
-        echo ""
-        echo "Comandos:"
-        echo "  start   - Inicia todo el sistema en segundo plano"
-        echo "  stop    - Detiene todo el sistema"
-        echo "  restart - Reinicia el sistema"
-        echo "  status  - Muestra si los componentes están corriendo"
-        echo "  install - Configura el sistema para iniciar solo al conectar la Pi"
-        exit 1
-        ;;
+stop_stack() {
+  have_systemd || die "systemd no está disponible."
+  log "Deteniendo servicios ARGOS ..."
+  as_root systemctl stop argos-app.service 2>/dev/null || true
+  as_root systemctl stop argos-camera-hls.service 2>/dev/null || true
+  as_root systemctl stop argos-hotspot.service 2>/dev/null || true
+  as_root systemctl stop "$STACK_TARGET" 2>/dev/null || true
+  log "Stack detenido."
+}
+
+restart_stack() {
+  stop_stack
+  sleep 2
+  start_stack
+}
+
+status_stack() {
+  ensure_deploy_layout
+  if [[ -x /opt/mango/raspberry/scripts/argos-status.sh ]]; then
+    as_root /opt/mango/raspberry/scripts/argos-status.sh
+  else
+    as_root bash "$SCRIPT_DIR/argos-status.sh"
+  fi
+}
+
+audit_stack() {
+  ensure_deploy_layout
+  if [[ -x /opt/mango/raspberry/scripts/argos-audit.sh ]]; then
+    as_root /opt/mango/raspberry/scripts/argos-audit.sh
+  else
+    as_root bash "$SCRIPT_DIR/argos-audit.sh"
+  fi
+}
+
+doctor_stack() {
+  ensure_deploy_layout
+  if [[ -x /opt/mango/raspberry/scripts/doctor.sh ]]; then
+    as_root /opt/mango/raspberry/scripts/doctor.sh
+  else
+    as_root bash "$SCRIPT_DIR/doctor.sh"
+  fi
+}
+
+show_logs() {
+  have_systemd || die "systemd no está disponible."
+  as_root journalctl -u argos-stack.target -u argos-hotspot.service -u argos-camera-hls.service -u argos-app.service -f
+}
+
+show_env() {
+  printf "${CYAN}Proyecto:${NC} %s\n" "$PROJECT_DIR"
+  printf "${CYAN}Deploy:${NC}   %s\n" "$DEPLOY_DIR"
+  printf "${CYAN}ARGOS env:${NC} %s\n" "$ARGOS_ENV_FILE"
+  printf "${CYAN}Raspi env:${NC} %s\n" "$RASPI_ENV_FILE"
+  [[ -f "$ARGOS_ENV_FILE" ]] && sed -n '1,160p' "$ARGOS_ENV_FILE" || warn "Aún no existe $ARGOS_ENV_FILE"
+}
+
+case "${1:-help}" in
+  publish|install) publish_stack ;;
+  update) update_stack ;;
+  start) start_stack ;;
+  stop) stop_stack ;;
+  restart) restart_stack ;;
+  status) status_stack ;;
+  audit) audit_stack ;;
+  doctor) doctor_stack ;;
+  logs) show_logs ;;
+  app-log) have_systemd && as_root journalctl -u argos-app.service -f ;;
+  camera-log) have_systemd && as_root journalctl -u argos-camera-hls.service -f ;;
+  hotspot-log) have_systemd && as_root journalctl -u argos-hotspot.service -f ;;
+  enable) systemd_action enable ;;
+  disable) systemd_action disable ;;
+  env) show_env ;;
+  help|-h|--help) usage ;;
+  *) usage; exit 1 ;;
 esac
-exit 0
