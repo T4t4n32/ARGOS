@@ -1,8 +1,12 @@
 [Unit]
-Description=ARGOS boot stack target - hotspot, camera stream and main app
-Wants=argos-hotspot.service argos-camera-hls.service argos-app.service
+Description=ARGOS boot stack target - managed by deploy/raspberry/publicar-argos.sh
 After=network-online.target nginx.service
 Documentation=file:/opt/mango/raspberry/ARGOS_AUTOSTART.md
+
+# Services are attached dynamically by publicar-argos.sh through:
+# /etc/systemd/system/argos-stack.target.wants/
+# This allows ARGOS_ENABLE_HOTSPOT, ARGOS_ENABLE_CAMERA and ARGOS_ENABLE_APP
+# to really enable/disable each component without editing this target.
 
 [Install]
 WantedBy=multi-user.target
