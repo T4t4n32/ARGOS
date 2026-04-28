@@ -8,14 +8,22 @@ StartLimitBurst=5
 [Service]
 Type=simple
 EnvironmentFile=/etc/argos/argos.env
+Environment=PYTHONUNBUFFERED=1
+ExecStartPre=/bin/bash -lc 'test -x /opt/argos/runtime/argos-runner.sh'
+ExecStartPre=/bin/bash -lc 'test -d "${ARGOS_APP_DIR:-/opt/argos/app}"'
 ExecStartPre=/bin/bash -lc 'sleep "${ARGOS_BOOT_DELAY_SEC:-8}"'
 ExecStart=/opt/argos/runtime/argos-runner.sh
 Restart=always
 RestartSec=5
 User=root
 WorkingDirectory=/opt/argos/app
+RuntimeDirectory=argos
+LogsDirectory=argos
+KillSignal=SIGINT
+TimeoutStopSec=15
 StandardOutput=journal
 StandardError=journal
+SyslogIdentifier=argos-app
 
 [Install]
 WantedBy=argos-stack.target
