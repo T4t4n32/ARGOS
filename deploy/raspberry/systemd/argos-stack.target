@@ -1,8 +1,0 @@
-[Unit]
-Description=ARGOS boot stack target - hotspot, camera stream and main app
-Wants=argos-hotspot.service argos-camera-hls.service argos-app.service
-After=network-online.target nginx.service
-Documentation=file:/opt/mango/raspberry/ARGOS_AUTOSTART.md
-
-[Install]
-WantedBy=multi-user.target
